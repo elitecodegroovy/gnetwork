@@ -2,7 +2,10 @@ package sqlstore
 
 import (
 	"fmt"
+	"github.com/elitecodegroovy/gnetwork/pkg/bus"
 	"github.com/elitecodegroovy/gnetwork/pkg/infra/log"
+	"github.com/elitecodegroovy/gnetwork/pkg/services/sqlstore/migrator"
+	"github.com/elitecodegroovy/gnetwork/pkg/services/sqlstore/sqlutil"
 	"github.com/elitecodegroovy/gnetwork/pkg/setting"
 	"github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/xorm"
@@ -17,7 +20,9 @@ import (
 const ContextSessionName = "db-session"
 
 var (
-	x     *xorm.Engine
+	x       *xorm.Engine
+	dialect migrator.Dialect
+
 	sqlog log.Logger = log.New("sqlstore")
 )
 
@@ -29,11 +34,13 @@ func init() {
 }
 
 type SqlStore struct {
-	Cfg   *setting.Cfg `inject:""`
-	dbCfg DatabaseConfig
+	Cfg *setting.Cfg `inject:""`
+	Bus bus.Bus      `inject:""`
 
-	engine *xorm.Engine
-	log    log.Logger
+	dbCfg   DatabaseConfig
+	Dialect migrator.Dialect
+	engine  *xorm.Engine
+	log     log.Logger
 }
 
 type DatabaseConfig struct {
@@ -217,9 +224,8 @@ func InitTestDB(t ITestDB) *SqlStore {
 	sqlstore := &SqlStore{}
 	//sqlstore.skipEnsureAdmin = true
 	sqlstore.Bus = bus.New()
-	sqlstore.CacheService = localcache.New(5*time.Minute, 10*time.Minute)
 
-	dbType := migrator.SQLITE
+	dbType := setting.SQLITE
 
 	// environment variable present for test db?
 	if db, present := os.LookupEnv("GRAFANA_TEST_DB"); present {
