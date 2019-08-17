@@ -49,6 +49,35 @@ fn do_compound(){
     println!(" Array element :{}", a[0]);
 }
 
+fn first_word(s: &str) -> &str {
+    let bytes = s.as_bytes();
+
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
+
+    &s[..]
+}
+
+fn string_slice(){
+    let my_string = String::from("Rust Async");
+
+    // first_word works on slices of `String`s
+    let _word = first_word(&my_string[..]);
+
+    let my_string_literal = "Rust Async";
+
+    // first_word works on slices of string literals
+    let _word = first_word(&my_string_literal[..]);
+
+    // Because string literals *are* string slices already,
+    // this works too, without the slice syntax!
+    let _word = first_word(my_string_literal);
+    println!(" word: {}", _word)
+}
+
 fn do_float(){
     let x = 2.0; // f64
 
@@ -69,12 +98,63 @@ fn do_float(){
     for number in (1..4).rev() {
         print!("{}!", number);
     }
+
+    let s = String::from("The Rust Programming Language");
+    let s1 = &s;
+    let s2 =&s;
+    println!("s1: {}, s2: {}", s1, s2);
+    let  s3 = &s;
+    println!("s3: {}", s3);
+
+    string_slice();
+    do_struct();
 }
 
 fn zero_plus(i: i32) -> i32 {
      0 + i
 }
 
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+//fn area(r: &Rectangle) -> u32 {
+//    r.height * r.width
+//}
+
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.height * self.width
+    }
+
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+
+    fn square(size: u32) -> Rectangle {
+        Rectangle { width: size, height: size }
+    }
+}
+
+
+fn do_struct(){
+    let rect1 = Rectangle { width: 20, height: 50 };
+    let rect2 = Rectangle { width: 10, height: 40 };
+    let rect3 = Rectangle { width: 60, height: 45 };
+
+    println!("rect1 area: {}", rect1.area());
+    println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+    println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
+
+    println!("rect1: {:?}", &(Rectangle::square(3)));
+//    println!(
+//        "The area of the rectangle is {} square pixels.",
+//        area(&rect1)
+//    );
+//    println!("rect1: {:?}", &rect1);
+}
 fn main() {
     //mut and default immutable
     let mut i = 0;
