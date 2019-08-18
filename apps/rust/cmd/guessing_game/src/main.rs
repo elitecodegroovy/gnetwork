@@ -78,6 +78,14 @@ fn string_slice(){
     println!(" word: {}", _word)
 }
 
+use std::collections::HashMap;
+
+fn do_map(){
+    let mut map = HashMap::new();
+    map.insert(1, 2);
+    println!("map :{:?}", map);
+}
+
 fn do_float(){
     let x = 2.0; // f64
 
@@ -108,6 +116,7 @@ fn do_float(){
 
     string_slice();
     do_struct();
+    do_map();
 }
 
 fn zero_plus(i: i32) -> i32 {
