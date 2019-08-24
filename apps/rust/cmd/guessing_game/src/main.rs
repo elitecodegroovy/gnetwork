@@ -84,16 +84,158 @@ fn do_map(){
     let mut map = HashMap::new();
     map.insert(1, 2);
     println!("map :{:?}", map);
+
+    let teams  = vec![String::from("Blue"), String::from("Yellow")];
+    let initial_scores = vec![10, 50];
+
+    let mut scores: HashMap<_, _> = teams.iter().zip(initial_scores.iter()).collect();
+    println!("scores map :{:?}", scores);
+
+    for (key, value) in &scores {
+        println!("key:{}: value: {}", key, value);
+    }
+    let team_name = String::from("Blue");
+
+    println!{"team name : {:?}", scores.get(&team_name)};
+
+
+    let text = "hello world wonderful world";
+
+    let mut map = HashMap::new();
+
+    for word in text.split_whitespace() {
+        let count = map.entry(word).or_insert(10);
+        //println!("word: {}", word);
+        *count += 1;
+    }
+
+    println!("{:?}", map);
+    //
+    let mut s = String::from("你好");
+    s.push_str(", Bruce Li!");
+    s.push('耶');
+    println!("{}", s);
+
+    let s1 = String::from("Rust, ");
+    let s2 = String::from("faster!");
+    //// note s1 has been moved here and can no longer be used
+    let s3 = s1 + &s2;
+
+    println!("s3：{}", s3);
+    do_string();
 }
+
+fn do_string(){
+    let s1 = String::from("tic");
+    let s2 = String::from("tac");
+    let s3 = String::from("toe");
+    let s = s1 + "-" + &s2 + "-" + &s3;
+    println!("s: {}", s);
+
+    let s4 = String::from("suffix!");
+    let  s = format!("{}-{}-{}", s2, s3, s4);
+    println!("s: {}", s);
+    //.bytes()   //raw number
+//    for c in s.chars() {
+//        println!("{}", c);
+//    }
+}
+
+fn do_err(){
+    use std::fs::File;
+    //other way: let f = File::open("hello.txt").unwrap();
+    //let f = File::open("hello.txt").expect("Failed to open hello.txt");
+    let f = File::open("readme.md");
+
+    let f = match f {
+        Ok(file) => file,
+        Err(error) => {
+            panic!("Problem opening the file: {:?}", error)
+        },
+    };
+
+    //A Shortcut for Propagating Errors: the ? Operator
+}
+
+fn largest(list: &[i32]) -> i32 {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+//Another way we could implement largest is for the function to
+// return a reference to a T value in the slice. I
+fn get_gt<T: PartialOrd + Copy >(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list.iter() {
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+struct Point<T, U> {
+    x: T,
+    y: U,
+}
+
+impl<T, U> Point<T, U> {
+    fn mixup<V, W>(self, other: Point<V, W>) -> Point<T, W> {
+        Point {
+            x: self.x,
+            y: other.y,
+        }
+    }
+}
+
+fn do_trait(){
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = get_gt(&number_list);
+    println!("The largest number is {}", result);
+
+    let char_list = vec!['y', 'm', 'a', 'q'];
+
+    let result = get_gt(&char_list);
+    println!("The largest char is {}", result);
+}
+
+fn do_generic(){
+    let number_list = vec![34, 50, 25, 100, 65];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let number_list = vec![102, 34, 6000, 89, 54, 2, 43, 8];
+
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
+
+    let p1 = Point { x: 5, y: 10.4 };
+    let p2 = Point { x: "Hello", y: 'c'};
+
+    let p3 = p1.mixup(p2);
+
+    println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
+    do_trait()
+}
+
 
 fn do_float(){
     let x = 2.0; // f64
-
     let y: f32 = 3.0; // f32
     println!("x:{}, y:{} ", x, y);
 
     do_compound();
-
     //expression
     println!("zero number ; {}", zero_plus(23));
 
@@ -117,7 +259,11 @@ fn do_float(){
     string_slice();
     do_struct();
     do_map();
+    do_err();
+    do_generic();
 }
+
+
 
 fn zero_plus(i: i32) -> i32 {
      0 + i
@@ -183,6 +329,5 @@ fn main() {
 
     // floating-point numbers
     do_float();
-
     //guess_num()
 }
