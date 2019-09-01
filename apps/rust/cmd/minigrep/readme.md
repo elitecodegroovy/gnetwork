@@ -10,3 +10,9 @@ To an admiring bog!
 
 
 FROG
+//release version
+cargo build --release
+
+run e.g.
+cargo frog readme.md 
+
