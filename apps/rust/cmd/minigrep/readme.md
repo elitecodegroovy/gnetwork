@@ -13,6 +13,17 @@ FROG
 //release version
 cargo build --release
 
+cargo remove version:
+```
+cargo yank --vers 1.0.1
+```
+
+
+we need to specify which package in the workspace we want to use by 
+using the -p argument and the package name with cargo run.
+
+
+
 run e.g.
 cargo frog readme.md 
 
