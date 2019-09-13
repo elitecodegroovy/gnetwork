@@ -262,6 +262,248 @@ fn do_smart_p(){
     assert_eq!(5, *y1);
 }
 
+fn do_concurrency(){
+    use std::thread;
+    use std::time::Duration;
+
+    let handle =thread::spawn(|| {
+        for i in 1..6 {
+            println!("hi number {} from the spawned thread!", i);
+            thread::sleep(Duration::from_millis(1));
+        }
+    });
+
+    for i in 1..5 {
+        println!("hi number {} from the main thread!", i);
+        thread::sleep(Duration::from_millis(1));
+    }
+
+    handle.join().unwrap();
+    do_concurrency1();
+}
+
+fn do_concurrency1(){
+    use std::thread;
+    use std::sync::mpsc;
+    use std::time::Duration;
+    let (tx, rx) = mpsc::channel();
+
+    thread::spawn(move || {
+        let vals = vec![
+            String::from("你好！"),
+            String::from("你去做什么？"),
+            String::from("Why？"),
+            String::from("那很好呀！"),
+        ];
+
+        for val in vals {
+            tx.send(val).unwrap();
+//            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    for received in rx {
+        println!("Got: {}", received);
+    }
+    do_concurrency2();
+    do_concurrency3();
+    do_match()
+}
+
+fn do_match_p(){
+    println!("one");
+}
+
+
+fn do_match(){
+    let x = 1;
+
+    match x {
+        1 => do_match_p(),
+        2 => println!("two"),
+        3 => println!("three"),
+        _ => println!("anything"),
+    }
+    //Matching Named Variables
+    let x = Some(5);
+    let y = 10;
+
+    match x {
+        Some(50) => println!("Got 50"),
+        Some(y) => println!("Matched, y = {:?}", y),
+        _ => println!("Default case, x = {:?}", x),
+    }
+
+    println!("at the end: x = {:?}, y = {:?}", x, y);
+
+    let x = 1;
+
+    match x {
+        1 | 2 => println!("one or two"),
+        3 => println!("three"),
+        _ => println!("anything"),
+    }
+
+    let x = 2;
+
+    match x {
+        1...5 => println!("one through five"),
+        _ => println!("something else"),
+    }
+
+    let x = 'A';
+
+    match x {
+        'a'...'j' => println!("early ASCII letter"),
+        'k'...'z' => println!("late ASCII letter"),
+        'A'...'Z' => println!("UP ASCII letter"),
+        _ => println!("something else"),
+    }
+
+    //Destructuring to Break Apart Values
+    let p = Point { x: 0, y: 7 };
+
+    match p {
+        Point { x, y: 0 } => println!("On the x axis at {}", x),
+        Point { x: 0, y } => println!("On the y axis at {}", y),
+        Point { x, y } => println!("On neither axis: ({}, {})", x, y),
+    }
+
+    let msg = Message::ChangeColor(Color::Hsv(0, 160, 255));
+
+    match msg {
+        Message::ChangeColor(Color::Rgb(r, g, b)) => {
+            println!(
+                "Change the color to red {}, green {}, and blue {}",
+                r,
+                g,
+                b
+            )
+        },
+        Message::ChangeColor(Color::Hsv(h, s, v)) => {
+            println!(
+                "Change the color to hue {}, saturation {}, and value {}",
+                h,
+                s,
+                v
+            )
+        }
+        _ => ()
+    }
+
+    //bind
+    do_match1();
+    //Rust's unsafe code
+    do_unsafe();
+}
+
+//Rust unsafe code demo
+fn do_unsafe(){
+    //doesn’t enforce these memory safety guarantees.
+    //Gaining extra superpowers.
+    //You can take four actions in unsafe Rust
+        //Dereference a raw pointer
+        //Call an unsafe function or method
+        //Access or modify a mutable static variable
+        //Implement an unsafe trait
+
+}
+
+fn do_match1(){
+    let msg = MessageNum::Hello { id: 5 };
+
+    match msg {
+        MessageNum::Hello { id: id_variable @ 3...7 } => {
+            println!("Found an id in range: {}", id_variable)
+        },
+        MessageNum::Hello { id: 10...12 } => {
+            println!("Found an id in another range")
+        },
+        MessageNum::Hello { id } => {
+            println!("Found some other id: {}", id)
+        },
+    }
+}
+enum MessageNum {
+    Hello { id: i32 },
+}
+enum Color {
+    Rgb(i32, i32, i32),
+    Hsv(i32, i32, i32),
+}
+
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(Color),
+}
+//Similarities Between RefCell<T>/Rc<T> and Mutex<T>/Arc<T>
+fn do_concurrency2(){
+    use std::thread;
+    use std::sync::mpsc;
+    use std::time::Duration;
+    let (tx, rx) = mpsc::channel();
+
+    let tx1 = mpsc::Sender::clone(&tx);
+    thread::spawn(move || {
+        let vals = vec![
+            String::from("1:你好！"),
+            String::from("1:你去做什么？"),
+            String::from("1:Why？"),
+            String::from("1:那很好呀！"),
+        ];
+
+        for val in vals {
+            tx1.send(val).unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    thread::spawn(move || {
+        let vals = vec![
+            String::from("2:你好！"),
+            String::from("2:你去做什么？"),
+            String::from("2:Why？"),
+            String::from("2:那很好呀！"),
+        ];
+
+        for val in vals {
+            tx.send(val).unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    for received in rx {
+        println!("Got: {}", received);
+    }
+}
+
+fn do_concurrency3(){
+    use std::sync::{Mutex, Arc};
+    use std::thread;
+
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        println!("Result: {}", *counter.lock().unwrap());
+        handle.join().unwrap();
+    }
+
+    println!("Result: {}", *counter.lock().unwrap());
+}
+
 fn do_float(){
     let x = 2.0; // f64
     let y: f32 = 3.0; // f32
@@ -295,6 +537,7 @@ fn do_float(){
     do_generic();
     do_closure();
     do_smart_p();
+    do_concurrency();
 }
 
 
