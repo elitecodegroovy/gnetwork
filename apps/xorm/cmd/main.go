@@ -74,6 +74,7 @@ func validPackaging(packaging string) string {
 	return "unknown"
 }
 
+//Setting system signal handling
 func listenToSystemSignals(server *GNetworkServerImpl) {
 	signalChan := make(chan os.Signal, 1)
 	sighupChan := make(chan os.Signal, 1)
@@ -92,7 +93,9 @@ func listenToSystemSignals(server *GNetworkServerImpl) {
 }
 
 func NewGNetworkServer() *GNetworkServerImpl {
+	//a copy of parent
 	rootCtx, shutdownFn := context.WithCancel(context.Background())
+	//a new Group
 	childRoutines, childCtx := errgroup.WithContext(rootCtx)
 
 	return &GNetworkServerImpl{
