@@ -16,6 +16,7 @@ import (
 	"github.com/facebookgo/inject"
 	"golang.org/x/sync/errgroup"
 	"io/ioutil"
+	"net"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -170,7 +171,46 @@ func (g *GNetworkServerImpl) Run() error {
 			return fmt.Errorf("Service init failed: %v", err)
 		}
 	}
-	return err
+
+	// Start background services
+	for _, srv := range services {
+		// variable needed for accessing loop variable in function callback
+		descriptor := srv
+		service, ok := srv.Instance.(registry.BackgroundService)
+		if !ok {
+			continue
+		}
+
+		if registry.IsDisabled(descriptor.Instance) {
+			continue
+		}
+
+		g.childRoutines.Go(func() error {
+			// Skip starting new service when shutting down
+			// Can happen when service stop/return during startup
+			if g.shutdownInProgress {
+				return nil
+			}
+
+			err := service.Run(g.context)
+
+			// If error is not canceled then the service crashed
+			if err != context.Canceled && err != nil {
+				g.log.Error("Stopped "+descriptor.Name, "reason", err)
+			} else {
+				g.log.Info("Stopped "+descriptor.Name, "reason", err)
+			}
+
+			// Mark that we are in shutdown mode
+			// So more services are not started
+			g.shutdownInProgress = true
+			return err
+		})
+	}
+
+	sendSystemdNotification("READY=1")
+
+	return g.childRoutines.Wait()
 }
 
 //Setting system signal handling
@@ -189,4 +229,29 @@ func listenToSystemSignals(server *GNetworkServerImpl) {
 			server.Shutdown(fmt.Sprintf("System signal: %s", sig))
 		}
 	}
+}
+
+func sendSystemdNotification(state string) error {
+	notifySocket := os.Getenv("NOTIFY_SOCKET")
+
+	if notifySocket == "" {
+		return fmt.Errorf("NOTIFY_SOCKET environment variable empty or unset")
+	}
+
+	socketAddr := &net.UnixAddr{
+		Name: notifySocket,
+		Net:  "unixgram",
+	}
+
+	conn, err := net.DialUnix(socketAddr.Net, nil, socketAddr)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Write([]byte(state))
+
+	conn.Close()
+
+	return err
 }
