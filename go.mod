@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/VividCortex/mysqlerr v0.0.0-20170204212430-6c6b55f8796f
+	github.com/elitecodegroovy/util v0.0.1
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-macaron/session v0.0.0-20190805070824-1a3cdc6f5659

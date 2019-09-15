@@ -21,7 +21,7 @@ import (
 	"gopkg.in/ini.v1"
 
 	"github.com/elitecodegroovy/gnetwork/pkg/infra/log"
-	"github.com/elitecodegroovy/gnetwork/pkg/util"
+	"github.com/elitecodegroovy/util"
 )
 
 type Scheme string
@@ -37,8 +37,8 @@ const (
 	DEV                 = "development"
 	PROD                = "production"
 	TEST                = "test"
-	APP_NAME            = "Grafana"
-	APP_NAME_ENTERPRISE = "Grafana Enterprise"
+	APP_NAME            = "GNetwork"
+	APP_NAME_ENTERPRISE = "GNetwork Enterprise"
 )
 
 var (
@@ -194,7 +194,7 @@ var (
 	// Explore UI
 	ExploreEnabled bool
 
-	// Grafana.NET URL
+	// GNetwork.NET URL
 	GrafanaComUrl string
 
 	// S3 temp image store
@@ -468,19 +468,19 @@ func (cfg *Cfg) loadConfiguration(args *CommandLineArgs) (*ini.File, error) {
 	var err error
 
 	// load config defaults
-	defaultConfigFile := path.Join(HomePath, "conf/defaults.ini")
+	defaultConfigFile := path.Join(HomePath, "conf/config.ini")
 	configFiles = append(configFiles, defaultConfigFile)
 
 	// check if config file exists
 	if _, err := os.Stat(defaultConfigFile); os.IsNotExist(err) {
-		fmt.Println("Grafana-server Init Failed: Could not find config defaults, make sure homepath command line parameter is set or working directory is homepath")
+		fmt.Println("GNetwork-server Init Failed: Could not find config defaults, make sure homepath command line parameter is set or working directory is homepath")
 		os.Exit(1)
 	}
 
 	// load defaults
 	parsedFile, err := ini.Load(defaultConfigFile)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to parse defaults.ini, %v", err))
+		fmt.Println(fmt.Sprintf("Failed to parse config.ini, %v", err))
 		os.Exit(1)
 		return nil, err
 	}
@@ -547,12 +547,12 @@ func setHomePath(args *CommandLineArgs) {
 
 	HomePath, _ = filepath.Abs(".")
 	// check if homepath is correct
-	if pathExists(filepath.Join(HomePath, "conf/defaults.ini")) {
+	if pathExists(filepath.Join(HomePath, "conf/config.ini")) {
 		return
 	}
 
 	// try down one path
-	if pathExists(filepath.Join(HomePath, "../conf/defaults.ini")) {
+	if pathExists(filepath.Join(HomePath, "../conf/config.ini")) {
 		HomePath = filepath.Join(HomePath, "../")
 	}
 }
