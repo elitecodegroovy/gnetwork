@@ -61,7 +61,6 @@ func Init() {
 	engine.SetConnMaxLifetime(time.Second * time.Duration(14400))
 
 	mLog.Info("Init DB successfully!")
-	fmt.Println("--------------------------------------------")
 }
 
 func validPackaging(packaging string) string {
@@ -117,9 +116,27 @@ type GNetworkServerImpl struct {
 	shutdownInProgress bool
 }
 
+func (g *GNetworkServerImpl) loadConfiguration() {
+	err := g.cfg.Load(&setting.CommandLineArgs{
+		Config:   *configFile,
+		HomePath: *homePath,
+		Args:     flag.Args(),
+	})
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to start grafana. error: %s\n", err.Error())
+		os.Exit(1)
+	}
+
+	g.log.Info("Starting "+setting.ApplicationName, "version", version, "commit", commit, "branch", buildBranch, "compiled", time.Unix(setting.BuildStamp, 0))
+	g.cfg.LogConfigSources()
+	g.log.Info("loading configuration successfully!")
+}
+
 func (g *GNetworkServerImpl) Run() error {
 	var err error
-	g.log.Info("Initializing  GNetworkServerImpl......")
+	g.loadConfiguration()
+
 	return err
 }
 
@@ -195,6 +212,8 @@ func main() {
 	setting.Packaging = validPackaging(*packaging)
 	sLog.Printf("Version: %s, Commit Version: %s, Package Iteration: %s\n", version, setting.BuildCommit, setting.BuildBranch)
 
+	//Init()
+
 	server := NewGNetworkServer()
 
 	go listenToSystemSignals(server)
@@ -206,7 +225,5 @@ func main() {
 	log.Close()
 
 	os.Exit(code)
-
-	Init()
 
 }
