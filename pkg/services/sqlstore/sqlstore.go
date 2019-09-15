@@ -34,8 +34,9 @@ func init() {
 }
 
 type SqlStore struct {
-	Cfg *setting.Cfg `inject:""`
-	Bus bus.Bus      `inject:""`
+	Cfg          *setting.Cfg             `inject:""`
+	Bus          bus.Bus                  `inject:""`
+	CacheService *localcache.CacheService `inject:""`
 
 	dbCfg   DatabaseConfig
 	Dialect migrator.Dialect
@@ -74,6 +75,18 @@ func (ss *SqlStore) Init() error {
 	}
 
 	ss.engine = engine
+
+	// temporarily still set global var
+	x = engine
+	dialect = ss.Dialect
+
+	// Init repo instances
+	annotations.SetRepository(&SqlAnnotationRepo{})
+	ss.Bus.SetTransactionManager(ss)
+
+	// Register handlers
+	ss.addUserQueryAndCommandHandlers()
+
 	return nil
 }
 
