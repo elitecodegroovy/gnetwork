@@ -3,7 +3,10 @@ package sqlstore
 import (
 	"fmt"
 	"github.com/elitecodegroovy/gnetwork/pkg/bus"
+	"github.com/elitecodegroovy/gnetwork/pkg/infra/localcache"
 	"github.com/elitecodegroovy/gnetwork/pkg/infra/log"
+	"github.com/elitecodegroovy/gnetwork/pkg/registry"
+	"github.com/elitecodegroovy/gnetwork/pkg/services/annotations"
 	"github.com/elitecodegroovy/gnetwork/pkg/services/sqlstore/migrator"
 	"github.com/elitecodegroovy/gnetwork/pkg/services/sqlstore/sqlutil"
 	"github.com/elitecodegroovy/gnetwork/pkg/setting"
@@ -31,6 +34,13 @@ func init() {
 	// by that mimic the functionality of how it was functioning before
 	// xorm's changes above.
 	xorm.DefaultPostgresSchema = ""
+
+	registry.Register(&registry.Descriptor{
+		Name:         "SqlStore",
+		Instance:     &SqlStore{},
+		InitPriority: registry.High,
+	})
+	fmt.Println("Initialized sqlstore ....")
 }
 
 type SqlStore struct {
@@ -143,7 +153,7 @@ func (ss *SqlStore) buildConnectionString() (string, error) {
 	}
 
 	switch ss.dbCfg.Type {
-	case setting.MYSQL:
+	case migrator.MYSQL:
 		protocol := "tcp"
 		if strings.HasPrefix(ss.dbCfg.Host, "/") {
 			protocol = "unix"
@@ -163,7 +173,7 @@ func (ss *SqlStore) buildConnectionString() (string, error) {
 
 		cnnstr += ss.buildExtraConnectionString('&')
 
-	case setting.SQLITE:
+	case migrator.SQLITE:
 		// special case for tests
 		if !filepath.IsAbs(ss.dbCfg.Path) {
 			ss.dbCfg.Path = filepath.Join(ss.Cfg.DataPath, ss.dbCfg.Path)
@@ -238,7 +248,7 @@ func InitTestDB(t ITestDB) *SqlStore {
 	//sqlstore.skipEnsureAdmin = true
 	sqlstore.Bus = bus.New()
 
-	dbType := setting.SQLITE
+	dbType := migrator.SQLITE
 
 	// environment variable present for test db?
 	if db, present := os.LookupEnv("GRAFANA_TEST_DB"); present {

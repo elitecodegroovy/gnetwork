@@ -195,7 +195,7 @@ var (
 	ExploreEnabled bool
 
 	// GNetwork.NET URL
-	GrafanaComUrl string
+	GNetworkComUrl string
 
 	// S3 temp image store
 	S3TempImageStoreBucketUrl string
@@ -273,7 +273,7 @@ func init() {
 }
 
 func parseAppUrlAndSubUrl(section *ini.Section) (string, string, error) {
-	appUrl, err := valueAsString(section, "root_url", "http://localhost:3000/")
+	appUrl, err := valueAsString(section, "root_url", "http://localhost:8000/")
 	if err != nil {
 		return "", "", err
 	}
@@ -645,7 +645,7 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	if err != nil {
 		return err
 	}
-	HttpPort, err = valueAsString(server, "http_port", "3000")
+	HttpPort, err = valueAsString(server, "http_port", "8000")
 	if err != nil {
 		return err
 	}
@@ -938,12 +938,12 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	}
 
 	// check old key  name
-	GrafanaComUrl, err = valueAsString(iniFile.Section("grafana_net"), "url", "")
+	GNetworkComUrl, err = valueAsString(iniFile.Section("gnetwork_net"), "url", "")
 	if err != nil {
 		return err
 	}
-	if GrafanaComUrl == "" {
-		GrafanaComUrl, err = valueAsString(iniFile.Section("grafana_com"), "url", "https://grafana.com")
+	if GNetworkComUrl == "" {
+		GNetworkComUrl, err = valueAsString(iniFile.Section("gnetwork_com"), "url", "https://gnetwork.com")
 		if err != nil {
 			return err
 		}
