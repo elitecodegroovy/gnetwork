@@ -10,7 +10,12 @@ import (
 	"github.com/elitecodegroovy/gnetwork/pkg/middleware"
 	"github.com/elitecodegroovy/gnetwork/pkg/registry"
 	"github.com/elitecodegroovy/gnetwork/pkg/routing"
+	"github.com/elitecodegroovy/gnetwork/pkg/server"
+	_ "github.com/elitecodegroovy/gnetwork/pkg/server"
+	_ "github.com/elitecodegroovy/gnetwork/pkg/services/auth"
 	_ "github.com/elitecodegroovy/gnetwork/pkg/services/notifications"
+	_ "github.com/elitecodegroovy/gnetwork/pkg/services/quota"
+	_ "github.com/elitecodegroovy/gnetwork/pkg/services/serverlock"
 	_ "github.com/elitecodegroovy/gnetwork/pkg/services/sqlstore"
 	"github.com/elitecodegroovy/gnetwork/pkg/setting"
 	"github.com/facebookgo/inject"
@@ -33,6 +38,9 @@ type GNetworkServerImpl struct {
 	cfg                *setting.Cfg
 	shutdownReason     string
 	shutdownInProgress bool
+
+	RouteRegister routing.RouteRegister `inject:""`
+	HttpServer    *server.HTTPServer    `inject:""`
 }
 
 func NewGNetworkServer() *GNetworkServerImpl {

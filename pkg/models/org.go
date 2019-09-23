@@ -49,7 +49,7 @@ type UpdateOrgCommand struct {
 
 type UpdateOrgAddressCommand struct {
 	OrgId int64
-	Address
+	//Address
 }
 
 type GetOrgByIdQuery struct {
@@ -77,9 +77,9 @@ type OrgDTO struct {
 }
 
 type OrgDetailsDTO struct {
-	Id      int64   `json:"id"`
-	Name    string  `json:"name"`
-	Address Address `json:"address"`
+	Id   int64  `json:"id"`
+	Name string `json:"name"`
+	//Address Address `json:"address"`
 }
 
 type UserOrgDTO struct {

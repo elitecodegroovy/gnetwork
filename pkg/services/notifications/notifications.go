@@ -75,6 +75,7 @@ func (ns *NotificationService) Init() error {
 }
 
 func (ns *NotificationService) Run(ctx context.Context) error {
+	ns.log.Info("NotificationService does startup ....")
 	for {
 		select {
 		case webhook := <-ns.webhookQueue:
