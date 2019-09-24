@@ -15,6 +15,7 @@ import (
 	"github.com/elitecodegroovy/gnetwork/pkg/routing"
 	httpstatic "github.com/elitecodegroovy/gnetwork/pkg/server/static"
 	"github.com/elitecodegroovy/gnetwork/pkg/services/quota"
+	"github.com/elitecodegroovy/gnetwork/pkg/services/remotecache"
 	"github.com/elitecodegroovy/gnetwork/pkg/setting"
 	"gopkg.in/macaron.v1"
 	"net"
@@ -46,9 +47,9 @@ type HTTPServer struct {
 
 	CacheService *localcache.CacheService `inject:""`
 
-	AuthTokenService models.UserTokenService `inject:""`
-	QuotaService     *quota.QuotaService     `inject:""`
-	//RemoteCacheService  *remotecache.RemoteCache `inject:""`
+	AuthTokenService   models.UserTokenService  `inject:""`
+	QuotaService       *quota.QuotaService      `inject:""`
+	RemoteCacheService *remotecache.RemoteCache `inject:""`
 	//ProvisioningService ProvisioningService      `inject:""`
 	//Login               *login.LoginService      `inject:""`
 }
@@ -123,10 +124,10 @@ func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 
 	m.Use(hs.healthHandler)
 
-	//m.Use(middleware.GetContextHandler(
-	//	hs.AuthTokenService,
-	//	hs.RemoteCacheService,
-	//))
+	m.Use(middleware.GetContextHandler(
+		hs.AuthTokenService,
+		hs.RemoteCacheService,
+	))
 	//m.Use(middleware.OrgRedirect())
 
 	// needs to be after context handler
@@ -134,7 +135,7 @@ func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 	//	m.Use(middleware.ValidateHostHeader(setting.Domain))
 	//}
 
-	//m.Use(middleware.HandleNoCacheHeader())
+	m.Use(middleware.HandleNoCacheHeader())
 }
 
 func (hs *HTTPServer) healthHandler(ctx *macaron.Context) {

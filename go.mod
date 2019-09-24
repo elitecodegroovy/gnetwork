@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/Unknwon/com v0.0.0-20190214221849-2d12a219ccaf
 	github.com/VividCortex/mysqlerr v0.0.0-20170204212430-6c6b55f8796f
+	github.com/bradfitz/gomemcache v0.0.0-20180710155616-bc664df96737
 	github.com/elitecodegroovy/util v0.0.1
 	github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51 // indirect
 	github.com/facebookgo/inject v0.0.0-20180706035515-f23751cae28b
@@ -19,7 +20,9 @@ require (
 	github.com/go-macaron/session v0.0.0-20190131233854-0a0a789bf193
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-stack/stack v1.8.0
-	github.com/go-xorm/xorm v0.7.6
+	github.com/go-xorm/core v0.6.2
+	github.com/go-xorm/xorm v0.7.1
+	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 	github.com/klauspost/compress v1.8.4 // indirect
 	github.com/klauspost/cpuid v1.2.1 // indirect
@@ -38,9 +41,11 @@ require (
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/xerrors v0.0.0-20190410155217-1f06c39b4373
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/bufio.v1 v1.0.0-20140618132640-567b2bfa514e // indirect
 	gopkg.in/go-playground/validator.v8 v8.18.2
 	gopkg.in/ini.v1 v1.46.0
 	gopkg.in/macaron.v1 v1.3.2
 	gopkg.in/mail.v2 v2.3.1
-	xorm.io/core v0.7.0
+	gopkg.in/redis.v2 v2.3.2
+	xorm.io/builder v0.3.6 // indirect
 )

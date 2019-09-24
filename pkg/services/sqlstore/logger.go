@@ -2,10 +2,9 @@ package sqlstore
 
 import (
 	"fmt"
-
 	glog "github.com/elitecodegroovy/gnetwork/pkg/infra/log"
 
-	"xorm.io/core"
+	"github.com/go-xorm/core"
 )
 
 type XormLogger struct {

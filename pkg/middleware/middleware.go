@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"github.com/elitecodegroovy/gnetwork/pkg/services/remotecache"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -29,7 +30,7 @@ var (
 
 func GetContextHandler(
 	ats models.UserTokenService,
-
+	remoteCache *remotecache.RemoteCache,
 ) macaron.Handler {
 	return func(c *macaron.Context) {
 		ctx := &models.ReqContext{

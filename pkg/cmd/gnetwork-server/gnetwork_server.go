@@ -13,6 +13,7 @@ import (
 	"github.com/elitecodegroovy/gnetwork/pkg/server"
 	_ "github.com/elitecodegroovy/gnetwork/pkg/server"
 	_ "github.com/elitecodegroovy/gnetwork/pkg/services/auth"
+	_ "github.com/elitecodegroovy/gnetwork/pkg/services/login"
 	_ "github.com/elitecodegroovy/gnetwork/pkg/services/notifications"
 	_ "github.com/elitecodegroovy/gnetwork/pkg/services/quota"
 	_ "github.com/elitecodegroovy/gnetwork/pkg/services/serverlock"
@@ -137,7 +138,8 @@ func (g *GNetworkServerImpl) Run() error {
 	if err != nil {
 		return fmt.Errorf("Failed to provide object to the graph: %v", err)
 	}
-	err = serviceGraph.Provide(&inject.Object{Value: routing.NewRouteRegister(middleware.RequestMetrics, middleware.RequestTracing)})
+	//err = serviceGraph.Provide(&inject.Object{Value: routing.NewRouteRegister(middleware.RequestMetrics, middleware.RequestTracing)})
+	err = serviceGraph.Provide(&inject.Object{Value: routing.NewRouteRegister(middleware.RequestMetrics)})
 	if err != nil {
 		return fmt.Errorf("Failed to provide object to the graph: %v", err)
 	}

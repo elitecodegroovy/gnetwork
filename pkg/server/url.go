@@ -24,7 +24,7 @@ func (hs *HTTPServer) registerRoutes() {
 
 	r.Post("/login", quota("session"), bind(dtos.LoginCommand{}), Wrap(hs.LoginPost))
 
-	r.Get("/urlReq", myHandler)
+	r.Get("/urlReq", urlHandler)
 	r.Get("/json", func() string {
 		return "Macaron Web Framework!"
 	})

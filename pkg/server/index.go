@@ -41,7 +41,7 @@ func AdminGetSettings(c *m.ReqContext) {
 	c.JSON(200, settings)
 }
 
-func myHandler(c *macaron.Context) {
+func urlHandler(c *macaron.Context) {
 	settings := make(map[string]interface{})
 	settings["msg"] = "the request path is: " + c.Req.RequestURI
 	settings["code"] = 200
