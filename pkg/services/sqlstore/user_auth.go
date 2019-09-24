@@ -133,7 +133,6 @@ func GetExternalUserInfoByLogin(query *models.GetExternalUserInfoByLoginQuery) e
 		Login:      userQuery.Result.Login,
 		Email:      userQuery.Result.Email,
 		Name:       userQuery.Result.Name,
-		IsDisabled: userQuery.Result.IsDisabled,
 		AuthModule: authInfoQuery.Result.AuthModule,
 		AuthId:     authInfoQuery.Result.AuthId,
 	}

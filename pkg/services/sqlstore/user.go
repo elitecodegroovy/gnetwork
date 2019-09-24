@@ -328,7 +328,6 @@ func GetUserProfile(query *models.GetUserProfileQuery) error {
 		Login:          user.Login,
 		Theme:          user.Theme,
 		IsGrafanaAdmin: user.IsAdmin,
-		IsDisabled:     user.IsDisabled,
 		OrgId:          user.OrgId,
 	}
 
@@ -501,7 +500,6 @@ func DisableUser(cmd *models.DisableUserCommand) error {
 	sess := x.Table("user")
 	sess.ID(cmd.UserId).Get(&user)
 
-	user.IsDisabled = cmd.IsDisabled
 	sess.UseBool("is_disabled")
 
 	_, err := sess.ID(cmd.UserId).Update(&user)

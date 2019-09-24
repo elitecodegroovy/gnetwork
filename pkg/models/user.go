@@ -30,7 +30,6 @@ type User struct {
 	EmailVerified bool
 	Theme         string
 	HelpFlags1    HelpFlags1
-	IsDisabled    bool
 
 	IsAdmin bool
 	OrgId   int64
