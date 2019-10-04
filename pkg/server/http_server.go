@@ -87,7 +87,7 @@ func (hs *HTTPServer) applyRoutes() {
 func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 	m := hs.macaron
 
-	//m.Use(middleware.Logger())
+	m.Use(middleware.Logger())
 
 	if setting.EnableGzip {
 		m.Use(middleware.Gziper())
@@ -122,6 +122,7 @@ func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 		Delims:     macaron.Delims{Left: "[[", Right: "]]"},
 	}))
 
+	//health for DB connection
 	m.Use(hs.healthHandler)
 
 	m.Use(middleware.GetContextHandler(
@@ -129,11 +130,6 @@ func (hs *HTTPServer) addMiddlewaresAndStaticRoutes() {
 		hs.RemoteCacheService,
 	))
 	//m.Use(middleware.OrgRedirect())
-
-	// needs to be after context handler
-	//if setting.EnforceDomain {
-	//	m.Use(middleware.ValidateHostHeader(setting.Domain))
-	//}
 
 	m.Use(middleware.HandleNoCacheHeader())
 }
