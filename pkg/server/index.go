@@ -85,8 +85,7 @@ func uploadFile(c *m.ReqContext) {
 	// write this byte array to our temporary file
 	tempFile.Write(fileBytes)
 
-	fmt.Fprintf(w, "File uploaded successfully : ")
-	fmt.Fprintf(w, header.Filename)
+	c.JSON(200, "ok")
 }
 
 func (hs *HTTPServer) NotFoundHandler(c *m.ReqContext) {
