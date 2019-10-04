@@ -1,7 +1,9 @@
 package server
 
 import (
+	"fmt"
 	"gopkg.in/macaron.v1"
+	"io/ioutil"
 	"regexp"
 	"strings"
 
@@ -46,6 +48,45 @@ func urlHandler(c *macaron.Context) {
 	settings["msg"] = "the request path is: " + c.Req.RequestURI
 	settings["code"] = 200
 	c.JSON(200, settings)
+}
+
+func uploadFile(c *m.ReqContext) {
+	r := c.Req
+	w := c.Resp
+	// the FormFile function takes in the POST input id file
+	file, header, err := r.FormFile("file")
+
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return
+	}
+
+	defer file.Close()
+
+	c.Logger.Info("Uploaded File:", header.Filename)
+	c.Logger.Info("File Size: ", fmt.Sprintf("%+v", header.Size))
+	c.Logger.Info("MIME Header: ", fmt.Sprintf("%+v", header.Header))
+
+	// Create a temporary file within our temp-images directory that follows
+	// a particular naming pattern
+	tempFile, err := ioutil.TempFile(".", "upload-*.png")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer tempFile.Close()
+
+	// read all of the contents of our uploaded file into a
+	// byte array
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// write this byte array to our temporary file
+	tempFile.Write(fileBytes)
+
+	fmt.Fprintf(w, "File uploaded successfully : ")
+	fmt.Fprintf(w, header.Filename)
 }
 
 func (hs *HTTPServer) NotFoundHandler(c *m.ReqContext) {

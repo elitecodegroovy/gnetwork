@@ -34,6 +34,8 @@ func (hs *HTTPServer) registerRoutes() {
 
 	r.Get("/urlReq", urlHandler)
 
+	r.Post("/upload", uploadFile)
+
 	r.Get("/setting", AdminGetSettings)
 	//r.Get("/api", reqSignedIn)
 
