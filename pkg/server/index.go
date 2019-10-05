@@ -2,8 +2,10 @@ package server
 
 import (
 	"fmt"
+	"github.com/elitecodegroovy/util"
 	"gopkg.in/macaron.v1"
-	"io/ioutil"
+	"io"
+	"os"
 	"regexp"
 	"strings"
 
@@ -64,26 +66,22 @@ func uploadFile(c *m.ReqContext) {
 	defer file.Close()
 
 	c.Logger.Info("Uploaded File:", header.Filename)
-	c.Logger.Info("File Size: ", fmt.Sprintf("%+v", header.Size))
-	c.Logger.Info("MIME Header: ", fmt.Sprintf("%+v", header.Header))
 
 	// Create a temporary file within our temp-images directory that follows
 	// a particular naming pattern
-	tempFile, err := ioutil.TempFile(".", "upload-*.png")
+	out, err := os.Create("./" + util.GetCurrentTimeNumberISOStrTime() + "-" + header.Filename)
 	if err != nil {
-		fmt.Println(err)
-	}
-	defer tempFile.Close()
-
-	// read all of the contents of our uploaded file into a
-	// byte array
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		fmt.Println(err)
+		c.JSON(300, err.Error())
+		return
 	}
 
-	// write this byte array to our temporary file
-	tempFile.Write(fileBytes)
+	defer out.Close()
+
+	// write the content from POST to the file
+	_, err = io.Copy(out, file)
+	if err != nil {
+		c.JSON(301, err.Error())
+	}
 
 	c.JSON(200, "ok")
 }

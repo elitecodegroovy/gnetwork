@@ -6,7 +6,7 @@ require (
 	github.com/Unknwon/com v0.0.0-20190214221849-2d12a219ccaf
 	github.com/VividCortex/mysqlerr v0.0.0-20170204212430-6c6b55f8796f
 	github.com/bradfitz/gomemcache v0.0.0-20180710155616-bc664df96737
-	github.com/elitecodegroovy/util v0.0.1
+	github.com/elitecodegroovy/util v0.0.2
 	github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51 // indirect
 	github.com/facebookgo/inject v0.0.0-20180706035515-f23751cae28b
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
@@ -47,5 +47,4 @@ require (
 	gopkg.in/macaron.v1 v1.3.2
 	gopkg.in/mail.v2 v2.3.1
 	gopkg.in/redis.v2 v2.3.2
-	xorm.io/builder v0.3.6 // indirect
 )
