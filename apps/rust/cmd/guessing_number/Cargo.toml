@@ -1,0 +1,11 @@
+[package]
+name = "guessing_number"
+version = "0.1.0"
+authors = ["elitecodegroovy <elite_jigang@163.com>"]
+edition = "2018"
+description = "A fun number where you guess what number the computer has chosen."
+license = "MIT"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.4.6"
