@@ -33,7 +33,7 @@ func TestLoadingSettings(t *testing.T) {
 		})
 
 		Convey("default.ini should have no semi-colon commented entries", func() {
-			file, err := os.Open("../../conf/defaults.ini")
+			file, err := os.Open("../../conf/config.ini")
 			if err != nil {
 				t.Errorf("failed to load defaults.ini file: %v", err)
 			}

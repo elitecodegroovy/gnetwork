@@ -3,8 +3,13 @@ package bus
 import (
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 )
+
+func init() {
+	fmt.Println("Init bus ...")
+}
 
 // HandlerFunc defines a handler function interface.
 type HandlerFunc interface{}

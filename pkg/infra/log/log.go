@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/elitecodegroovy/util"
 	"github.com/go-stack/stack"
-	"github.com/grafana/grafana/pkg/util"
 	"github.com/inconshreveable/log15"
-	isatty "github.com/mattn/go-isatty"
+	"github.com/mattn/go-isatty"
 	"gopkg.in/ini.v1"
 )
 
@@ -208,7 +208,7 @@ func ReadLoggingConfig(modes []string, logsPath string, cfg *ini.File) {
 		case "console":
 			handler = log15.StreamHandler(os.Stdout, format)
 		case "file":
-			fileName := sec.Key("file_name").MustString(filepath.Join(logsPath, "grafana.log"))
+			fileName := sec.Key("file_name").MustString(filepath.Join(logsPath, "gnetwork.log"))
 			os.MkdirAll(filepath.Dir(fileName), os.ModePerm)
 			fileHandler := NewFileWriter()
 			fileHandler.Filename = fileName

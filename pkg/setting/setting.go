@@ -21,7 +21,7 @@ import (
 	"gopkg.in/ini.v1"
 
 	"github.com/elitecodegroovy/gnetwork/pkg/infra/log"
-	"github.com/elitecodegroovy/gnetwork/pkg/util"
+	"github.com/elitecodegroovy/util"
 )
 
 type Scheme string
@@ -37,8 +37,8 @@ const (
 	DEV                 = "development"
 	PROD                = "production"
 	TEST                = "test"
-	APP_NAME            = "Grafana"
-	APP_NAME_ENTERPRISE = "Grafana Enterprise"
+	APP_NAME            = "GNetwork"
+	APP_NAME_ENTERPRISE = "GNetwork Enterprise"
 )
 
 var (
@@ -194,8 +194,8 @@ var (
 	// Explore UI
 	ExploreEnabled bool
 
-	// Grafana.NET URL
-	GrafanaComUrl string
+	// GNetwork.NET URL
+	GNetworkComUrl string
 
 	// S3 temp image store
 	S3TempImageStoreBucketUrl string
@@ -273,7 +273,7 @@ func init() {
 }
 
 func parseAppUrlAndSubUrl(section *ini.Section) (string, string, error) {
-	appUrl, err := valueAsString(section, "root_url", "http://localhost:3000/")
+	appUrl, err := valueAsString(section, "root_url", "http://localhost:8000/")
 	if err != nil {
 		return "", "", err
 	}
@@ -468,19 +468,19 @@ func (cfg *Cfg) loadConfiguration(args *CommandLineArgs) (*ini.File, error) {
 	var err error
 
 	// load config defaults
-	defaultConfigFile := path.Join(HomePath, "conf/defaults.ini")
+	defaultConfigFile := path.Join(HomePath, "conf/config.ini")
 	configFiles = append(configFiles, defaultConfigFile)
 
 	// check if config file exists
 	if _, err := os.Stat(defaultConfigFile); os.IsNotExist(err) {
-		fmt.Println("Grafana-server Init Failed: Could not find config defaults, make sure homepath command line parameter is set or working directory is homepath")
+		fmt.Println("GNetwork-server Init Failed: Could not find config defaults, make sure homepath command line parameter is set or working directory is homepath")
 		os.Exit(1)
 	}
 
 	// load defaults
 	parsedFile, err := ini.Load(defaultConfigFile)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to parse defaults.ini, %v", err))
+		fmt.Println(fmt.Sprintf("Failed to parse config.ini, %v", err))
 		os.Exit(1)
 		return nil, err
 	}
@@ -547,12 +547,12 @@ func setHomePath(args *CommandLineArgs) {
 
 	HomePath, _ = filepath.Abs(".")
 	// check if homepath is correct
-	if pathExists(filepath.Join(HomePath, "conf/defaults.ini")) {
+	if pathExists(filepath.Join(HomePath, "conf/config.ini")) {
 		return
 	}
 
 	// try down one path
-	if pathExists(filepath.Join(HomePath, "../conf/defaults.ini")) {
+	if pathExists(filepath.Join(HomePath, "../conf/config.ini")) {
 		HomePath = filepath.Join(HomePath, "../")
 	}
 }
@@ -645,7 +645,7 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	if err != nil {
 		return err
 	}
-	HttpPort, err = valueAsString(server, "http_port", "3000")
+	HttpPort, err = valueAsString(server, "http_port", "8000")
 	if err != nil {
 		return err
 	}
@@ -938,12 +938,12 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	}
 
 	// check old key  name
-	GrafanaComUrl, err = valueAsString(iniFile.Section("grafana_net"), "url", "")
+	GNetworkComUrl, err = valueAsString(iniFile.Section("gnetwork_net"), "url", "")
 	if err != nil {
 		return err
 	}
-	if GrafanaComUrl == "" {
-		GrafanaComUrl, err = valueAsString(iniFile.Section("grafana_com"), "url", "https://grafana.com")
+	if GNetworkComUrl == "" {
+		GNetworkComUrl, err = valueAsString(iniFile.Section("gnetwork_com"), "url", "https://gnetwork.com")
 		if err != nil {
 			return err
 		}
