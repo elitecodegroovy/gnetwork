@@ -18,8 +18,7 @@ type MyWork struct {
 
 // 线程执行单元
 func (workPool *MyWork) DoWork(workRoutine int) {
-	fmt.Printf("任务名称： %s : %d\n", workPool.Name, workPool.BirthYear)
-	fmt.Printf(">>> workRoutine: %d，  QueuedWork: %d ， ActiveRoutines: %d\n", workRoutine, workPool.WP.QueuedWork(), workPool.WP.ActiveRoutines())
+	fmt.Printf(">>>任务名称： %s ,  workRoutine: %d，  QueuedWork: %d ， ActiveRoutines: %d\n", workPool.Name, workRoutine, workPool.WP.QueuedWork(), workPool.WP.ActiveRoutines())
 	time.Sleep(100 * time.Millisecond)
 
 	//panic("test")
@@ -31,7 +30,7 @@ func main() {
 	shutdown := false
 
 	go func() {
-		for i := 0; i < 1000; i++ {
+		for i := 0; i < 202; i++ {
 			//结构体实例
 			worker := &MyWork{
 				Name:      "workpool index " + strconv.Itoa(i),
@@ -40,7 +39,7 @@ func main() {
 			}
 			err := workerWorkPool.PostWork("name_routine", worker)
 			if err != nil {
-				fmt.Printf("ERROR: %s\n", err)
+				//fmt.Printf("ERROR: %s\n", err)
 				time.Sleep(100 * time.Millisecond)
 			}
 			if shutdown == true {
