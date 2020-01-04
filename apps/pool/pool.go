@@ -102,7 +102,6 @@ func (workPool *WorkPool) PostWork(goRoutine string, work PoolWorker) (err error
 	defer catchPanic(&err, goRoutine, "PostWork")
 
 	poolWork := poolWork{work, make(chan error)}
-
 	defer close(poolWork.resultChannel)
 
 	workPool.queueChannel <- poolWork
