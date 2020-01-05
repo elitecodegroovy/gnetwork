@@ -37,10 +37,12 @@ func main() {
 				BirthYear: i,
 				WP:        workerWorkPool,
 			}
+		TRYTODO:
 			err := workerWorkPool.PostWork("name_routine", worker)
 			if err != nil {
 				//fmt.Printf("ERROR: %s\n", err)
 				time.Sleep(100 * time.Millisecond)
+				goto TRYTODO
 			}
 			if shutdown == true {
 				return

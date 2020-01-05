@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 var (
@@ -191,14 +190,13 @@ func (workPool *WorkPool) queueRoutine() {
 		// Post work to be processed.
 		case queueItem := <-workPool.queueChannel:
 			index++
-		TRYTODO:
 			// If the queue is at capacity don't add it.
 			if atomic.AddInt32(&workPool.queuedWork, 0) == workPool.queueCapacity {
-				//queueItem.resultChannel <- ErrCapacity
+				queueItem.resultChannel <- ErrCapacity
 				//writeStdout("Queue",  " " +strconv.FormatInt(index, 10), " " )
 				//等待任务队列非饱和
-				time.Sleep(time.Microsecond * 100)
-				goto TRYTODO
+				//time.Sleep(time.Microsecond * 100)
+				continue
 			}
 			//log.Printf("%s \n", strconv.FormatInt(index, 10))
 			// Increment the queued work count.
