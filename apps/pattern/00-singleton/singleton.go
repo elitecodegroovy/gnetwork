@@ -1,4 +1,4 @@
-package main
+package singleton
 
 type Counter struct {
 	count int
