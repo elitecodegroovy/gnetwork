@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+//Decorator pattern can be used for the middleware.
 type IngredientAdder interface {
 	AddIngredient() (string, error)
 }
