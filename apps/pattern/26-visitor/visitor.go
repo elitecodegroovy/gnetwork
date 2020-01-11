@@ -63,6 +63,7 @@ type MsgFieldVisitorPrinter struct{}
 func (mf *MsgFieldVisitorPrinter) VisitA(m *MessageA) {
 	fmt.Printf(m.Msg)
 }
+
 func (mf *MsgFieldVisitorPrinter) VisitB(m *MessageB) {
 	fmt.Printf(m.Msg)
 }
