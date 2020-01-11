@@ -53,4 +53,5 @@ func TestOriginator_ExtractAndStoreState(t *testing.T) {
 	if originator.state.Description != "Idle" {
 		t.Error("Unexpected state found")
 	}
+
 }
