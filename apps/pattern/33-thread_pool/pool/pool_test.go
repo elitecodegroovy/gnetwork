@@ -1,7 +1,8 @@
 package pool_test
 
 import (
-	"sync"
+	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 
@@ -11,78 +12,79 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ConnPool", func() {
+func TestConnPool(t *testing.T) {
 	var connPool *pool.ConnPool
-
-	BeforeEach(func() {
-		connPool = pool.NewConnPool(&pool.Options{
-			Dialer:             dummyDialer,
-			PoolSize:           10,
-			PoolTimeout:        time.Hour,
-			IdleTimeout:        time.Millisecond,
-			IdleCheckFrequency: time.Millisecond,
-		})
+	connPool = pool.NewConnPool(&pool.Options{
+		Dialer:             dummyDialer,
+		PoolSize:           10,
+		PoolTimeout:        time.Hour,
+		IdleTimeout:        time.Millisecond,
+		IdleCheckFrequency: time.Millisecond,
 	})
+	defer connPool.Close()
 
-	AfterEach(func() {
-		connPool.Close()
-	})
+	// Reserve one connection.
+	cn, err := connPool.Get()
+	if err != nil {
+		t.Fatal("failed to fetch a conn from the connection pool")
+	}
+	//t.Log(fmt.Sprintf("%v", cn))
 
-	It("should unblock client when conn is removed", func() {
-		// Reserve one connection.
+	// Reserve all other connections.
+	var cns []*pool.Conn
+	for i := 0; i < 9; i++ {
 		cn, err := connPool.Get()
-		Expect(err).NotTo(HaveOccurred())
+		if err != nil {
+			t.Fatal("failed to fetch a conn from the connection pool")
 
-		// Reserve all other connections.
-		var cns []*pool.Conn
-		for i := 0; i < 9; i++ {
-			cn, err := connPool.Get()
-			Expect(err).NotTo(HaveOccurred())
-			cns = append(cns, cn)
 		}
+		cns = append(cns, cn)
+	}
+	started := make(chan bool, 1)
+	done := make(chan bool, 1)
+	go func() {
+		defer GinkgoRecover()
 
-		started := make(chan bool, 1)
-		done := make(chan bool, 1)
-		go func() {
-			defer GinkgoRecover()
-
-			started <- true
-			_, err := connPool.Get()
-			Expect(err).NotTo(HaveOccurred())
-			done <- true
-
-			connPool.Put(cn)
-		}()
-		<-started
-
-		// Check that Get is blocked.
-		select {
-		case <-done:
-			Fail("Get is not blocked")
-		case <-time.After(time.Millisecond):
-			// ok
+		started <- true
+		_, err := connPool.Get()
+		if err != nil {
+			t.Fatal("failed to fetch a conn from the connection pool")
 		}
+		done <- true
 
-		connPool.Remove(cn, nil)
+		connPool.Put(cn)
+	}()
+	<-started
 
-		// Check that Get is unblocked.
-		select {
-		case <-done:
-			// ok
-		case <-time.After(time.Second):
-			Fail("Get is not unblocked")
-		}
+	// Check that Get is blocked.
+	select {
+	case <-done:
+		t.Fatal("Get is not blocked")
+	case <-time.After(time.Millisecond):
+		// ok
+	}
 
-		for _, cn := range cns {
-			connPool.Put(cn)
-		}
-	})
-})
+	connPool.Remove(cn, nil)
 
-var _ = Describe("MinIdleConns", func() {
+	// Check that Get is unblocked.
+	select {
+	case <-done:
+		// ok
+	case <-time.After(time.Second):
+		t.Fatal("Get is not unblocked")
+	}
+
+	for _, cn := range cns {
+		connPool.Put(cn)
+	}
+	t.Log("Idle connections: " + fmt.Sprintf("%d", connPool.Stats().IdleConns))
+	t.Log("Total connections: " + fmt.Sprintf("%d", connPool.Stats().TotalConns))
+	t.Log("Stale connections: " + fmt.Sprintf("%d", connPool.Stats().StaleConns))
+}
+
+func TestMinIdleConns(t *testing.T) {
 	const poolSize = 100
 	var minIdleConns int
-	var connPool *pool.ConnPool
 
 	newConnPool := func() *pool.ConnPool {
 		connPool := pool.NewConnPool(&pool.Options{
@@ -93,158 +95,31 @@ var _ = Describe("MinIdleConns", func() {
 			IdleTimeout:        -1,
 			IdleCheckFrequency: -1,
 		})
-		Eventually(func() int {
-			return connPool.Len()
-		}).Should(Equal(minIdleConns))
+		assert.EqualValues(t, 0, connPool.Len())
 		return connPool
 	}
 
-	assert := func() {
-		It("has idle connections when created", func() {
-			Expect(connPool.Len()).To(Equal(minIdleConns))
-			Expect(connPool.IdleLen()).To(Equal(minIdleConns))
-		})
-
-		Context("after Get", func() {
-			var cn *pool.Conn
-
-			BeforeEach(func() {
-				var err error
-				cn, err = connPool.Get()
-				Expect(err).NotTo(HaveOccurred())
-
-				Eventually(func() int {
-					return connPool.Len()
-				}).Should(Equal(minIdleConns + 1))
-			})
-
-			It("has idle connections", func() {
-				Expect(connPool.Len()).To(Equal(minIdleConns + 1))
-				Expect(connPool.IdleLen()).To(Equal(minIdleConns))
-			})
-
-			Context("after Remove", func() {
-				BeforeEach(func() {
-					connPool.Remove(cn, nil)
-				})
-
-				It("has idle connections", func() {
-					Expect(connPool.Len()).To(Equal(minIdleConns))
-					Expect(connPool.IdleLen()).To(Equal(minIdleConns))
-				})
-			})
-		})
-
-		Describe("Get does not exceed pool size", func() {
-			var mu sync.RWMutex
-			var cns []*pool.Conn
-
-			BeforeEach(func() {
-				cns = make([]*pool.Conn, 0)
-
-				perform(poolSize, func(_ int) {
-					defer GinkgoRecover()
-
-					cn, err := connPool.Get()
-					Expect(err).NotTo(HaveOccurred())
-					mu.Lock()
-					cns = append(cns, cn)
-					mu.Unlock()
-				})
-
-				Eventually(func() int {
-					return connPool.Len()
-				}).Should(BeNumerically(">=", poolSize))
-			})
-
-			It("Get is blocked", func() {
-				done := make(chan struct{})
-				go func() {
-					connPool.Get()
-					close(done)
-				}()
-
-				select {
-				case <-done:
-					Fail("Get is not blocked")
-				case <-time.After(time.Millisecond):
-					// ok
-				}
-
-				select {
-				case <-done:
-					// ok
-				case <-time.After(time.Second):
-					Fail("Get is not unblocked")
-				}
-			})
-
-			Context("after Put", func() {
-				BeforeEach(func() {
-					perform(len(cns), func(i int) {
-						mu.RLock()
-						connPool.Put(cns[i])
-						mu.RUnlock()
-					})
-
-					Eventually(func() int {
-						return connPool.Len()
-					}).Should(Equal(poolSize))
-				})
-
-				It("pool.Len is back to normal", func() {
-					Expect(connPool.Len()).To(Equal(poolSize))
-					Expect(connPool.IdleLen()).To(Equal(poolSize))
-				})
-			})
-
-			Context("after Remove", func() {
-				BeforeEach(func() {
-					perform(len(cns), func(i int) {
-						mu.RLock()
-						connPool.Remove(cns[i], nil)
-						mu.RUnlock()
-					})
-
-					Eventually(func() int {
-						return connPool.Len()
-					}).Should(Equal(minIdleConns))
-				})
-
-				It("has idle connections", func() {
-					Expect(connPool.Len()).To(Equal(minIdleConns))
-					Expect(connPool.IdleLen()).To(Equal(minIdleConns))
-				})
-			})
-		})
+	dummyPool := newConnPool()
+	defer dummyPool.Close()
+	var cn *pool.Conn
+	var err error
+	_, err = dummyPool.Get()
+	if err != nil {
+		t.Fatal("failed to fetch a conn from the connection pool")
 	}
 
-	Context("minIdleConns = 1", func() {
-		BeforeEach(func() {
-			minIdleConns = 1
-			connPool = newConnPool()
-		})
+	assert.EqualValues(t, 1, dummyPool.Len())
 
-		AfterEach(func() {
-			connPool.Close()
-		})
+	cn, err = dummyPool.Get()
+	if err != nil {
+		t.Fatal("failed to fetch a conn from the connection pool")
+	}
+	assert.EqualValues(t, 2, dummyPool.Len())
 
-		assert()
-	})
-
-	Context("minIdleConns = 32", func() {
-		BeforeEach(func() {
-			minIdleConns = 32
-			connPool = newConnPool()
-		})
-
-		AfterEach(func() {
-			connPool.Close()
-		})
-
-		assert()
-	})
-})
+	//subtract
+	dummyPool.Remove(cn, nil)
+	assert.EqualValues(t, 1, dummyPool.Len())
+}
 
 var _ = Describe("conns reaper", func() {
 	const idleTimeout = time.Minute
