@@ -27,7 +27,6 @@ func (s *Publisher) RemoveObserver(o Observer) {
 			break
 		}
 	}
-
 	s.ObserversList = append(s.ObserversList[:indexToRemove], s.ObserversList[indexToRemove+1:]...)
 }
 
