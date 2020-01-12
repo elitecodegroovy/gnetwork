@@ -1,4 +1,4 @@
-package _2_pipeline
+package pipeline
 
 import (
 	"context"
