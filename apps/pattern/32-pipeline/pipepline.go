@@ -1,4 +1,4 @@
-package barrier
+package _2_pipeline
 
 import (
 	"context"
