@@ -5,7 +5,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/go-redis/redis/internal/proto"
+	"github.com/elitecodegroovy/gnetwork/apps/pattern/33-thread_pool/proto"
 )
 
 func IsRetryableError(err error, retryTimeout bool) bool {

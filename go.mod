@@ -23,6 +23,7 @@ require (
 	github.com/go-stack/stack v1.8.0
 	github.com/go-xorm/core v0.6.2
 	github.com/go-xorm/xorm v0.7.1
+	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/grafana/grafana v6.1.6+incompatible
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
@@ -40,9 +41,11 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
 	github.com/stretchr/testify v1.3.0
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
-	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 	golang.org/x/oauth2 v0.0.0-20190319182350-c85d3e98c914
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
+	golang.org/x/sys v0.0.0-20200107162124-548cf772de50 // indirect
+	golang.org/x/text v0.3.2 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/bufio.v1 v1.0.0-20140618132640-567b2bfa514e // indirect
@@ -51,4 +54,5 @@ require (
 	gopkg.in/macaron.v1 v1.3.2
 	gopkg.in/mail.v2 v2.3.1
 	gopkg.in/redis.v2 v2.3.2
+	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
