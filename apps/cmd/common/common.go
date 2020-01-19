@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const (
 	x = iota * 10
@@ -8,7 +11,7 @@ const (
 	z = "yy"
 	k
 	_
-	p = iota
+	p1 = iota
 )
 
 func DeferFunc1(i int) (t int) {
@@ -49,7 +52,7 @@ func doAppend() {
 }
 
 func doIota() {
-	fmt.Println(x, y, z, k, p)
+	fmt.Println(x, y, z, k, p1)
 }
 
 //常量不同于变量的在运行期分配内存，常量通常会被编译器在预处理阶段直接展开，作为指令数据使用。
@@ -88,6 +91,54 @@ func doPanic() {
 	panic("panic")
 }
 
+func Utf8Index(str, substr string) int {
+	//// Index returns the index of the first instance of substr in s, or -1 if substr is not present in s.
+	asciiPos := strings.Index(str, substr)
+	if asciiPos == -1 || asciiPos == 0 {
+		return asciiPos
+	}
+	fmt.Println("-->index:" + fmt.Sprintf("%d", asciiPos))
+	pos := 0
+	totalSize := 0
+	reader := strings.NewReader(str)
+	for _, size, err := reader.ReadRune(); err == nil; _, size, err = reader.ReadRune() {
+		totalSize += size
+		pos++
+		// 匹配到
+		if totalSize == asciiPos {
+			return pos
+		}
+	}
+	return pos
+}
+
+func doUtf8Index() {
+	fmt.Println(Utf8Index("北京天安门最美丽", "天安门"))
+	fmt.Println(strings.Index("北京天安门最美丽", "男"))
+	fmt.Println(strings.Index("", "男"))
+	fmt.Println(Utf8Index("12ws北京天安门最美丽", "天安门"))
+	fmt.Println(Utf8Index("12ws北京天安门最美丽", "12ws"))
+}
+
+type ConfigOne struct {
+	Daemon string
+}
+
+func (c *ConfigOne) String() string {
+	//return fmt.Sprintf("print: %v", c)
+	return c.Daemon
+}
+
+func doString() {
+	c := &ConfigOne{Daemon: "skip loop call String()"}
+	println(c.String())
+}
+
+func lenStr() {
+	//中文占用3个字符的编码大小
+	fmt.Println(len("红A1w!"))
+}
+
 func main() {
 	//:defer和函数返回值
 	doDefer()
@@ -95,4 +146,9 @@ func main() {
 	doAppend()
 	doIota()
 	doPanic()
+
+	//在utf8字符串判断是否包含指定字符串，并返回下标
+	doUtf8Index()
+
+	lenStr()
 }
