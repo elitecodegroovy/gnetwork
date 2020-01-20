@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/micro/go-micro"
 	"time"
 
 	proto "github.com/elitecodegroovy/gnetwork/apps/micro/proto/greeter"
