@@ -28,3 +28,9 @@ protoc -I/home/app/protoc/include -I. \
        --grpc-gateway_out=logtostderr=true:. \
         proto/greeter/hello.proto
 ```
+
+对于micro工具包，只需使用内置标志来设置ttl和间隔。
+```
+
+micro --register_ttl=30 --register_interval=15 api
+```
