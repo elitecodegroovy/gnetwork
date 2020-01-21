@@ -4,6 +4,7 @@ import (
 	"fmt"
 	proto "github.com/elitecodegroovy/gnetwork/apps/micro/proto/greeter"
 	"github.com/micro/go-micro"
+	"time"
 
 	"golang.org/x/net/context"
 )
@@ -23,8 +24,11 @@ func (g *Payment) Pay(ctx context.Context, req *proto.PayReq, rsp *proto.PayResp
 
 func main() {
 	// Create a new service. Optionally include some options here.
+	//TTL 30s, register internal 15s
 	service := micro.NewService(
 		micro.Name(paymentService),
+		micro.RegisterTTL(time.Second*30),
+		micro.RegisterInterval(time.Second*15),
 	)
 
 	// Init will parse the command line flags.
