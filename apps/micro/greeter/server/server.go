@@ -8,24 +8,30 @@ import (
 	"golang.org/x/net/context"
 )
 
-type Greeter struct{}
+const (
+	paymentService = "go.micro.paymentService"
+)
 
-func (g *Greeter) Hello(ctx context.Context, req *proto.HelloRequest, rsp *proto.HelloResponse) error {
-	rsp.Greeting = "Hello " + req.Name
+type Payment struct{}
+
+func (g *Payment) Pay(ctx context.Context, req *proto.PayReq, rsp *proto.PayResp) error {
+	rsp.Msg = "success: " + req.GetOrderId()
+	rsp.Code = 100
+	rsp.Success = "OK"
 	return nil
 }
 
 func main() {
 	// Create a new service. Optionally include some options here.
 	service := micro.NewService(
-		micro.Name("greeter"),
+		micro.Name(paymentService),
 	)
 
 	// Init will parse the command line flags.
 	service.Init()
 
 	// Register handler
-	proto.RegisterGreeterHandler(service.Server(), new(Greeter))
+	proto.RegisterPaymentServiceHandler(service.Server(), new(Payment))
 
 	// Run the server
 	if err := service.Run(); err != nil {

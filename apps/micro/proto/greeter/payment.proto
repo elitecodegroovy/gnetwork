@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+service PaymentService {
+    rpc Pay(PayReq) returns (PayResp) {}
+}
+
+message PayReq {
+    string orderId = 1;
+    string account = 2;
+}
+
+message PayResp {
+    int32 code     = 1;
+    string success = 2;
+    string msg     = 3;
+}

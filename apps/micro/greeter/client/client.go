@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/micro/go-micro"
+	"os"
 	"time"
 
 	proto "github.com/elitecodegroovy/gnetwork/apps/micro/proto/greeter"
@@ -16,15 +17,16 @@ func main() {
 	service.Init()
 
 	// Create new greeter client
-	greeter := proto.NewGreeterService("greeter", service.Client())
+	cli := proto.NewPaymentService("go.micro.paymentService", service.Client())
 
 	// Call the greeter
-	rsp, err := greeter.Hello(context.TODO(), &proto.HelloRequest{Name: "John"})
+	rsp, err := cli.Pay(context.Background(), &proto.PayReq{OrderId: "20100000000000100010", Account: "order2020"})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	// Print response
-	fmt.Println(fmt.Sprintf("%v", rsp.Greeting))
+	fmt.Println(fmt.Sprintf("%d, %s, %s", rsp.Code, rsp.Success, rsp.Msg))
 	time.Sleep(2 * time.Second)
 }

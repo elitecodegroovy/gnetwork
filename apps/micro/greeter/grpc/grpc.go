@@ -1,15 +1,16 @@
 package main
 
+//
 //import (
 //	"flag"
 //	"net/http"
 //
-//	"context"
 //	"github.com/golang/glog"
 //	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+//	"golang.org/x/net/context"
 //	"google.golang.org/grpc"
 //
-//	proto "github.com/elitecodegroovy/gnetwork/apps/micro/proto/greeter"
+//	hello "github.com/elitecodegroovy/gnetwork/apps/micro/proto/greeter"
 //)
 //
 //var (
@@ -25,7 +26,7 @@ package main
 //	mux := runtime.NewServeMux()
 //	opts := []grpc.DialOption{grpc.WithInsecure()}
 //
-//	err := proto.RegisterSayHandlerFromEndpoint(ctx, mux, *endpoint, opts)
+//	err := hello.RegisterSayHandlerFromEndpoint(ctx, mux, *endpoint, opts)
 //	if err != nil {
 //		return err
 //	}
