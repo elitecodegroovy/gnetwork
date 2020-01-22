@@ -18,7 +18,7 @@ type Payment struct{}
 func (g *Payment) Pay(ctx context.Context, req *payment.PayReq, rsp *payment.PayResp) error {
 	rsp.Msg = "success: " + req.GetOrderId()
 	rsp.Code = 100
-	rsp.Success = "OK"
+	rsp.Success = "OK! " + req.GetAccount()
 	return nil
 }
 
@@ -41,4 +41,6 @@ func main() {
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
 	}
+
+	//grpc running with the parameters '--registry=mdns --server_address=localhost:9090'
 }
