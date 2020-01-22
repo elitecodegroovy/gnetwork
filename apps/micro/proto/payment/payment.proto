@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+
+service PaymentService {
+    rpc Pay(PayReq) returns (PayResp) {
+        option (google.api.http) = {
+			post: "/order/pay"
+			body: "*"
+		};
+    }
+}
+
+message PayReq {
+    string orderId = 1;
+    string account = 2;
+}
+
+message PayResp {
+    int32 code     = 1;
+    string success = 2;
+    string msg     = 3;
+}

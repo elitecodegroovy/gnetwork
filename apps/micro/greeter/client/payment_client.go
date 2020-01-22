@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	proto "github.com/elitecodegroovy/gnetwork/apps/micro/proto/greeter"
+	proto "github.com/elitecodegroovy/gnetwork/apps/micro/proto/payment"
 )
 
 func main() {
@@ -28,5 +28,5 @@ func main() {
 
 	// Print response
 	fmt.Println(fmt.Sprintf("%d, %s, %s", rsp.Code, rsp.Success, rsp.Msg))
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
 }

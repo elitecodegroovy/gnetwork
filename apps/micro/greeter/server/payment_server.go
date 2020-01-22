@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	proto "github.com/elitecodegroovy/gnetwork/apps/micro/proto/greeter"
+	payment "github.com/elitecodegroovy/gnetwork/apps/micro/proto/payment"
 	"github.com/micro/go-micro"
 	"time"
 
@@ -15,7 +15,7 @@ const (
 
 type Payment struct{}
 
-func (g *Payment) Pay(ctx context.Context, req *proto.PayReq, rsp *proto.PayResp) error {
+func (g *Payment) Pay(ctx context.Context, req *payment.PayReq, rsp *payment.PayResp) error {
 	rsp.Msg = "success: " + req.GetOrderId()
 	rsp.Code = 100
 	rsp.Success = "OK"
@@ -35,7 +35,7 @@ func main() {
 	service.Init()
 
 	// Register handler
-	proto.RegisterPaymentServiceHandler(service.Server(), new(Payment))
+	payment.RegisterPaymentServiceHandler(service.Server(), new(Payment))
 
 	// Run the server
 	if err := service.Run(); err != nil {
