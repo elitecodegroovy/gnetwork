@@ -1,4 +1,10 @@
 
+Support registry etcd3 , run src like this:
+```
+go run payment_server.go –registrer=etcdv3 –registrer-address= http://192.168.1.147:2379
+```
+
+
 linux
 
 ```
@@ -27,10 +33,4 @@ protoc -I/home/app/protoc/include -I. \
        -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
        --grpc-gateway_out=logtostderr=true:. \
         proto/grpc/payment.proto
-```
-
-对于micro工具包，只需使用内置标志来设置ttl和间隔。
-```
-
-micro --register_ttl=30 --register_interval=15 api
 ```
