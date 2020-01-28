@@ -19,7 +19,7 @@ require (
 	github.com/go-macaron/inject v0.0.0-20160627170012-d8a0b8677191 // indirect
 	github.com/go-macaron/session v0.0.0-20190131233854-0a0a789bf193
 	github.com/go-redis/redis v6.15.6+incompatible
-	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/go-stack/stack v1.8.0
 	github.com/go-xorm/core v0.6.2
 	github.com/go-xorm/xorm v0.7.1
@@ -34,6 +34,7 @@ require (
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-isatty v0.0.8
 	github.com/mattn/go-sqlite3 v1.11.0
+	github.com/micro/cli v0.2.0
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-plugins/registry/etcdv3 v0.0.0-20200119172437-4fe21aa238fd
 	github.com/onsi/ginkgo v1.11.0
