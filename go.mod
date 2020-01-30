@@ -6,6 +6,7 @@ require (
 	github.com/Unknwon/com v0.0.0-20190214221849-2d12a219ccaf
 	github.com/VividCortex/mysqlerr v0.0.0-20170204212430-6c6b55f8796f
 	github.com/bradfitz/gomemcache v0.0.0-20180710155616-bc664df96737
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elitecodegroovy/util v0.0.2
 	github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51 // indirect
 	github.com/facebookgo/inject v0.0.0-20180706035515-f23751cae28b
