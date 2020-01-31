@@ -40,7 +40,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	// 调用后台服务
-	rsp, err := serviceClient.QueryUserByName(context.TODO(), &us.UserRequest{
+	rsp, err := serviceClient.QueryUserByName(context.Background(), &us.UserRequest{
 		UserName: r.Form.Get("userName"),
 	})
 	if err != nil {
@@ -115,7 +115,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 删除token
-	_, err = authClient.DelUserAccessToken(context.TODO(), &auth.AuthRequest{
+	_, err = authClient.DelUserAccessToken(context.Background(), &auth.AuthRequest{
 		Token: tokenCookie.Value,
 	})
 	if err != nil {
@@ -131,6 +131,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 
 	// 返回结果
 	response := map[string]interface{}{
+		"code":    1,
 		"ref":     time.Now().UnixNano(),
 		"success": true,
 	}
