@@ -25,12 +25,16 @@ func Init() {
 
 type Service struct{}
 
+func (s *Service) GetCachedAccessToken(context.Context, *auth.AuthRequest, *auth.AuthResponse) error {
+	panic("implement me")
+}
+
 // MakeAccessToken 生成token
 func (s *Service) MakeAccessToken(ctx context.Context, req *auth.AuthRequest, rsp *auth.AuthResponse) error {
 	log.Log("[MakeAccessToken] 收到创建token请求")
 
 	token, err := accessService.MakeAccessToken(&access.Subject{
-		ID:   strconv.FormatUint(req.UserId, 10),
+		ID:   strconv.FormatInt(req.UserId, 10),
 		Name: req.UserName,
 	})
 	if err != nil {

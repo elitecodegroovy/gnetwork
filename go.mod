@@ -15,6 +15,7 @@ require (
 	github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 // indirect
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.4.0
+	github.com/go-log/log v0.1.0
 	github.com/go-macaron/binding v0.0.0-20170611065819-ac54ee249c27
 	github.com/go-macaron/gzip v0.0.0-20160222043647-cad1c6580a07
 	github.com/go-macaron/inject v0.0.0-20160627170012-d8a0b8677191 // indirect
@@ -26,6 +27,8 @@ require (
 	github.com/go-xorm/xorm v0.7.1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/protobuf v1.3.2
+	github.com/google/uuid v1.1.1
+	github.com/gorilla/sessions v1.2.0
 	github.com/grafana/grafana v6.1.6+incompatible
 	github.com/grpc-ecosystem/grpc-gateway v1.12.1
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec

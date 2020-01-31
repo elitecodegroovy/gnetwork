@@ -62,7 +62,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		log.Logf("[Login] 密码校验完成，生成token...")
 
 		// 生成token
-		rsp2, err := authClient.MakeAccessToken(context.TODO(), &auth.AuthRequest{
+		rsp2, err := authClient.MakeAccessToken(context.Background(), &auth.AuthRequest{
 			UserId:   rsp.User.Id,
 			UserName: rsp.User.Name,
 		})

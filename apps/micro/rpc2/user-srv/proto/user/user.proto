@@ -8,7 +8,7 @@ service User {
 }
 
 message user {
-	uint64 id = 1;
+	int64 id = 1;
 	string name = 2;
 	string pwd = 3;
 	uint64 createdTime = 4;
@@ -31,3 +31,6 @@ message UserResponse {
 	Error error = 2;
 	user user = 3;
 }
+
+
+//protoc --proto_path=. --go_out=. --micro_out=. proto/user/user.proto

@@ -5,6 +5,7 @@ package mu.micro.book.srv.auth;
 service Service {
     rpc MakeAccessToken (AuthRequest) returns (AuthResponse) {}
     rpc DelUserAccessToken (AuthRequest) returns (AuthResponse) {}
+    rpc GetCachedAccessToken (AuthRequest) returns (AuthResponse) {}
 }
 
 message Error {
@@ -13,7 +14,7 @@ message Error {
 }
 
 message AuthRequest {
-    uint64 userId = 1;
+    int64 userId = 1;
     string userName = 2;
     string token = 3;
 }
@@ -23,3 +24,6 @@ message AuthResponse {
     Error error = 2;
     string token = 3;
 }
+
+
+//protoc --proto_path=. --go_out=. --micro_out=. proto/auth/auth.proto
