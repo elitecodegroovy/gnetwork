@@ -48,6 +48,7 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337
 	github.com/stretchr/testify v1.4.0
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
+	go.uber.org/zap v1.12.0
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
@@ -61,6 +62,7 @@ require (
 	gopkg.in/ini.v1 v1.46.0
 	gopkg.in/macaron.v1 v1.3.2
 	gopkg.in/mail.v2 v2.3.1
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/redis.v2 v2.3.2
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
