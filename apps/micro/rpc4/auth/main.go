@@ -53,7 +53,6 @@ func main() {
 			handler.Init()
 		}),
 	)
-
 	// 注册服务
 	s.RegisterServiceHandler(service.Server(), new(handler.Service))
 
