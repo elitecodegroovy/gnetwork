@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/common"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-srv/handler"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-srv/model"
+	_ "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-srv/plugin"
 	s "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-srv/proto/user"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"

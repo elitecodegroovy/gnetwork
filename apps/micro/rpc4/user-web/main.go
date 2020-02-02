@@ -7,6 +7,7 @@ import (
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/common"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-web/handler"
+	_ "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-web/plugin"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/etcd"
