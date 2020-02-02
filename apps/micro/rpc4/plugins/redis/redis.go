@@ -5,6 +5,7 @@ import (
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
 	z "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/plugins/zap"
 	r "github.com/go-redis/redis"
+	logger "github.com/micro/go-micro/util/log"
 	"go.uber.org/zap"
 	"strings"
 	"sync"
@@ -47,6 +48,7 @@ func (s *RedisSentinel) GetNodes() []string {
 
 // init 初始化Redis
 func init() {
+	logger.Logf("init redis...")
 	basic.Register(initRedis)
 }
 

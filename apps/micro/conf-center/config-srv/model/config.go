@@ -11,36 +11,36 @@ type Model struct {
 
 type App struct {
 	Model
-	AppName     string `gorm:"column:app_name; not null; unique_index:app_uindex; size:500" json:"appName"`
-	Description string `gorm:"column:description;                                 size:500" json:"description"`
+	AppName     string `gorm:"column:app_name; not null; unique_index:app_uindex; size:50" json:"appName"`
+	Description string `gorm:"column:description;                                 size:50" json:"description"`
 }
 
 type Cluster struct {
 	Model
-	AppName     string `gorm:"column:app_name;      not null; unique_index:cluster_uindex; size:500" json:"appName"`
-	ClusterName string `gorm:"column:cluster_name;  not null; unique_index:cluster_uindex; size:100" json:"clusterName"`
-	Description string `gorm:"column:description;                                          size:500" json:"description"`
+	AppName     string `gorm:"column:app_name;      not null; unique_index:cluster_uindex; size:50" json:"appName"`
+	ClusterName string `gorm:"column:cluster_name;  not null; unique_index:cluster_uindex; size:10" json:"clusterName"`
+	Description string `gorm:"column:description;                                          size:50" json:"description"`
 }
 
 type Namespace struct {
 	Model
-	AppName       string `gorm:"column:app_name;        not null; unique_index:namespace_uindex; size:500" json:"appName"`
-	ClusterName   string `gorm:"column:cluster_name;    not null; unique_index:namespace_uindex; size:100" json:"clusterName"`
-	NamespaceName string `gorm:"column:namespace_name;  not null; unique_index:namespace_uindex; size:100" json:"namespaceName"`
+	AppName       string `gorm:"column:app_name;        not null; unique_index:namespace_uindex; size:50" json:"appName"`
+	ClusterName   string `gorm:"column:cluster_name;    not null; unique_index:namespace_uindex; size:10" json:"clusterName"`
+	NamespaceName string `gorm:"column:namespace_name;  not null; unique_index:namespace_uindex; size:10" json:"namespaceName"`
 	Format        string `gorm:"column:format"                                                             json:"format"`
 	Value         string `gorm:"column:value;           type:longtext"                                     json:"value"`
 	Released      bool   `gorm:"column:released"                                                           json:"released"`
 	EditValue     string `gorm:"column:edit_value;      type:longtext"                                     json:"editValue"`
-	Description   string `gorm:"column:description;                                              size:500" json:"description"`
+	Description   string `gorm:"column:description;                                              size:50" json:"description"`
 }
 
 type Release struct {
 	Model
-	AppName       string `gorm:"column:app_name;        not null; unique_index:release_uindex; size:500" json:"appName"`
-	ClusterName   string `gorm:"column:cluster_name;    not null; unique_index:release_uindex; size:100" json:"clusterName"`
-	NamespaceName string `gorm:"column:namespace_name;  not null; unique_index:release_uindex; size:100" json:"namespaceName"`
-	Tag           string `gorm:"column:tag;             not null; unique_index:release_uindex; size:100" json:"tag"`
+	AppName       string `gorm:"column:app_name;        not null; unique_index:release_uindex; size:50" json:"appName"`
+	ClusterName   string `gorm:"column:cluster_name;    not null; unique_index:release_uindex; size:10" json:"clusterName"`
+	NamespaceName string `gorm:"column:namespace_name;  not null; unique_index:release_uindex; size:10" json:"namespaceName"`
+	Tag           string `gorm:"column:tag;             not null; unique_index:release_uindex; size:10" json:"tag"`
 	Value         string `gorm:"column:value;           type:longtext"      json:"value"`
-	Comment       string `gorm:"column:comment;         size:500"           json:"comment"`
+	Comment       string `gorm:"column:comment;         size:50"           json:"comment"`
 	Type          string `gorm:"column:type;            size:50"            json:"type"`
 }

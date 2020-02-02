@@ -3,6 +3,7 @@ package zap
 import (
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
+	"github.com/micro/go-micro/util/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -20,6 +21,7 @@ var (
 )
 
 func init() {
+	log.Logf("[init] zap plugin ....")
 	l = &Logger{
 		Opts: &Options{},
 	}
