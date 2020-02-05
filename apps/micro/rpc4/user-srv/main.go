@@ -13,11 +13,14 @@ import (
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/etcd"
-	"github.com/micro/go-micro/util/log"
+	"go.uber.org/zap"
+
+	l "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/plugins/logger"
 	"github.com/micro/go-plugins/config/source/grpc"
 )
 
 var (
+	log     = l.GetLogger()
 	appName = "user_srv"
 	cfg     = &userCfg{}
 )
@@ -55,7 +58,7 @@ func main() {
 
 	// 启动服务
 	if err := service.Run(); err != nil {
-		log.Fatal(err)
+		log.Fatal("", zap.String("error: ", err.Error()))
 	}
 }
 
@@ -81,7 +84,7 @@ func initCfg() {
 		panic(err)
 	}
 
-	log.Logf("[initCfg] 配置，cfg：%v", cfg)
+	log.Info("[initCfg] 配置，cfg：%v", zap.Any("cfg:", cfg))
 
 	return
 }
