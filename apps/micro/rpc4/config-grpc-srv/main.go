@@ -55,7 +55,7 @@ func main() {
 	}
 }
 
-func (s Service) Read(ctx context.Context, req *proto.ReadRequest) (rsp *proto.ReadResponse, err error) {
+func (s *Service) Read(ctx context.Context, req *proto.ReadRequest) (rsp *proto.ReadResponse, err error) {
 	appName := parsePath(req.Path)
 
 	rsp = &proto.ReadResponse{
@@ -64,7 +64,7 @@ func (s Service) Read(ctx context.Context, req *proto.ReadRequest) (rsp *proto.R
 	return
 }
 
-func (s Service) Watch(req *proto.WatchRequest, server proto.Source_WatchServer) (err error) {
+func (s *Service) Watch(req *proto.WatchRequest, server proto.Source_WatchServer) (err error) {
 	appName := parsePath(req.Path)
 	rsp := &proto.WatchResponse{
 		ChangeSet: getConfig(appName),

@@ -1,15 +1,14 @@
-package zap
+package logger
 
 import (
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
 	"github.com/micro/go-micro/util/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"sync"
+
 	"os"
 	"path/filepath"
-	"sync"
 )
 
 var (
@@ -18,15 +17,11 @@ var (
 	errWS, warnWS, infoWS, debugWS zapcore.WriteSyncer       // IO输出
 	debugConsoleWS                 = zapcore.Lock(os.Stdout) // 控制台标准输出
 	errorConsoleWS                 = zapcore.Lock(os.Stderr)
-)
 
-func init() {
-	log.Logf("[init] zap plugin ....")
-	l = &Logger{
-		Opts: &Options{},
-	}
-	basic.Register(initLogger)
-}
+	defaultDevelopmentEnv   = "dev"
+	defaultOutputPaths      = "stdout"
+	defaultErrorOutputPaths = "stderr"
+)
 
 type Logger struct {
 	*zap.Logger
@@ -36,67 +31,51 @@ type Logger struct {
 	inited    bool
 }
 
-func initLogger() {
+func GetLogger() *Logger {
+	log.Logf("[init] zap plugin ....")
+	l = &Logger{
+		Opts: &Options{},
+	}
 
 	l.Lock()
 	defer l.Unlock()
 
 	if l.inited {
 		l.Info("[initLogger] logger Inited")
-		return
+		return l
 	}
 
 	l.loadCfg()
 	l.init()
 	l.Info("[initLogger] zap plugin initializing completed")
 	l.inited = true
-}
-
-// GetLogger returns logger
-func GetLogger() (ret *Logger) {
 	return l
-}
-
-func (l *Logger) init() {
-
-	l.setSyncers()
-	var err error
-
-	l.Logger, err = l.zapConfig.Build(l.cores())
-	if err != nil {
-		panic(err)
-	}
-
-	defer l.Logger.Sync()
 }
 
 func (l *Logger) loadCfg() {
 
-	c := config.C()
-
-	err := c.Path("zap", l.Opts)
-	if err != nil {
-		panic(err)
-	}
-
-	if l.Opts.Development {
+	if os.Getenv("LOGGER_ENV") == defaultDevelopmentEnv {
 		l.zapConfig = zap.NewDevelopmentConfig()
 	} else {
 		l.zapConfig = zap.NewProductionConfig()
 	}
 
 	// application log output path
-	if l.Opts.OutputPaths == nil || len(l.Opts.OutputPaths) == 0 {
-		l.zapConfig.OutputPaths = []string{"stdout"}
+	if len(os.Getenv("LOGGER_OUTPUT_PATHS")) != 0 {
+		l.zapConfig.OutputPaths = []string{os.Getenv("LOGGER_OUTPUT_PATHS")}
+	} else {
+		l.zapConfig.OutputPaths = []string{defaultOutputPaths}
 	}
 
 	//  error of zap-self log
-	if l.Opts.ErrorOutputPaths == nil || len(l.Opts.ErrorOutputPaths) == 0 {
-		l.zapConfig.OutputPaths = []string{"stderr"}
+	if len(os.Getenv("LOGGER_ERROR_OUTPUT_PATHS")) != 0 {
+		l.zapConfig.OutputPaths = []string{os.Getenv("LOGGER_ERROR_OUTPUT_PATHS")}
+	} else {
+		l.zapConfig.OutputPaths = []string{defaultErrorOutputPaths}
 	}
 
 	// 默认输出到程序运行目录的logs子目录
-	if l.Opts.LogFileDir == "" {
+	if len(os.Getenv("LOGGER_LOG_FILE_DIR")) == 0 {
 		l.Opts.LogFileDir, _ = filepath.Abs(filepath.Dir(filepath.Join(".")))
 		l.Opts.LogFileDir += sp + "logs" + sp
 	}
@@ -132,8 +111,20 @@ func (l *Logger) loadCfg() {
 	}
 }
 
-func (l *Logger) setSyncers() {
+func (l *Logger) init() {
 
+	l.setSyncers()
+	var err error
+
+	l.Logger, err = l.zapConfig.Build(l.cores())
+	if err != nil {
+		panic(err)
+	}
+
+	defer l.Logger.Sync()
+}
+
+func (l *Logger) setSyncers() {
 	f := func(fN string) zapcore.WriteSyncer {
 		return zapcore.AddSync(&lumberjack.Logger{
 			Filename:   l.Opts.LogFileDir + sp + l.Opts.AppName + "-" + fN,
@@ -151,6 +142,52 @@ func (l *Logger) setSyncers() {
 	debugWS = f(l.Opts.DebugFileName)
 
 	return
+}
+
+func (l *Logger) cores() zap.Option {
+	fileEncoder := getEncoder(false)
+	consoleEncoder := getEncoder(true)
+
+	errPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl > zapcore.WarnLevel && zapcore.WarnLevel-l.zapConfig.Level.Level() > -1
+	})
+	warnPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl == zapcore.WarnLevel && zapcore.WarnLevel-l.zapConfig.Level.Level() > -1
+	})
+	infoPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl == zapcore.InfoLevel && zapcore.InfoLevel-l.zapConfig.Level.Level() > -1
+	})
+	debugPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl == zapcore.DebugLevel && zapcore.DebugLevel-l.zapConfig.Level.Level() > -1
+	})
+
+	cores := []zapcore.Core{
+		// region 日志文件
+		// error 及以上
+		zapcore.NewCore(fileEncoder, errWS, errPriority),
+		// warn
+		zapcore.NewCore(fileEncoder, warnWS, warnPriority),
+		// info
+		zapcore.NewCore(fileEncoder, infoWS, infoPriority),
+		// debug
+		zapcore.NewCore(fileEncoder, debugWS, debugPriority),
+
+		// endregion
+		// region 控制台
+
+		// 错误及以上
+		zapcore.NewCore(consoleEncoder, errorConsoleWS, errPriority),
+		// 警告
+		zapcore.NewCore(consoleEncoder, debugConsoleWS, warnPriority),
+		// info
+		zapcore.NewCore(consoleEncoder, debugConsoleWS, infoPriority),
+		// debug
+		zapcore.NewCore(consoleEncoder, debugConsoleWS, debugPriority),
+		// endregion
+	}
+	return zap.WrapCore(func(c zapcore.Core) zapcore.Core {
+		return zapcore.NewTee(cores...)
+	})
 }
 
 func getEncoder(console bool) zapcore.Encoder {
@@ -177,61 +214,4 @@ func getEncoder(console bool) zapcore.Encoder {
 	}
 	return zapcore.NewJSONEncoder(encoderConfig)
 
-}
-
-func (l *Logger) cores() zap.Option {
-
-	fileEncoder := getEncoder(false)
-	consoleEncoder := getEncoder(true)
-
-	errPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl > zapcore.WarnLevel && zapcore.WarnLevel-l.zapConfig.Level.Level() > -1
-	})
-	warnPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl == zapcore.WarnLevel && zapcore.WarnLevel-l.zapConfig.Level.Level() > -1
-	})
-	infoPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl == zapcore.InfoLevel && zapcore.InfoLevel-l.zapConfig.Level.Level() > -1
-	})
-	debugPriority := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
-		return lvl == zapcore.DebugLevel && zapcore.DebugLevel-l.zapConfig.Level.Level() > -1
-	})
-
-	cores := []zapcore.Core{
-		// region 日志文件
-
-		// error 及以上
-		zapcore.NewCore(fileEncoder, errWS, errPriority),
-
-		// warn
-		zapcore.NewCore(fileEncoder, warnWS, warnPriority),
-
-		// info
-		zapcore.NewCore(fileEncoder, infoWS, infoPriority),
-
-		// debug
-		zapcore.NewCore(fileEncoder, debugWS, debugPriority),
-
-		// endregion
-
-		// region 控制台
-
-		// 错误及以上
-		zapcore.NewCore(consoleEncoder, errorConsoleWS, errPriority),
-
-		// 警告
-		zapcore.NewCore(consoleEncoder, debugConsoleWS, warnPriority),
-
-		// info
-		zapcore.NewCore(consoleEncoder, debugConsoleWS, infoPriority),
-
-		// debug
-		zapcore.NewCore(consoleEncoder, debugConsoleWS, debugPriority),
-
-		// endregion
-	}
-
-	return zap.WrapCore(func(c zapcore.Core) zapcore.Core {
-		return zapcore.NewTee(cores...)
-	})
 }

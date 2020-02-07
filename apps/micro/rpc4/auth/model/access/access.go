@@ -8,7 +8,7 @@ import (
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/plugins/jwt"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/plugins/redis"
-	z "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/plugins/zap"
+	z "github.com/elitecodegroovy/goutil/logger"
 	r "github.com/go-redis/redis"
 )
 
