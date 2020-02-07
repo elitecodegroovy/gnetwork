@@ -34,7 +34,7 @@ func main() {
 				Name:   "database_url",
 				Usage:  "database url",
 				EnvVar: "DATABASE_URL",
-				Value:  "root:12345@(127.0.0.1:3306)/xconf?charset=utf8&parseTime=true&loc=Local",
+				Value:  "gca:gca@(127.0.0.1:3306)/gca?charset=utf8&parseTime=true&loc=Local",
 			},
 			cli.StringFlag{
 				Name:   "broadcast",
