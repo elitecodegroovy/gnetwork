@@ -5,8 +5,8 @@ import (
 	"go.uber.org/zap"
 	"strconv"
 
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/auth/model/access"
-	auth "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/auth/proto/auth"
+	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/auth/model/access"
+	auth "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/auth/proto/auth"
 	l "github.com/elitecodegroovy/goutil/logger"
 )
 

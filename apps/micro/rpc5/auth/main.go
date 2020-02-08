@@ -2,47 +2,81 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/auth/handler"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/auth/model"
-	_ "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/auth/plugin"
-	s "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/auth/proto/auth"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/common"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
+	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/auth/handler"
+	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/auth/model"
+	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/auth/model/redis"
+	s "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/auth/proto/auth"
+	cfg "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/basic/config"
 	l "github.com/elitecodegroovy/goutil/logger"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/etcd"
-	"github.com/micro/go-plugins/config/source/grpc"
 	"go.uber.org/zap"
 )
 
 var (
-	log     = l.GetLogger()
-	appName = "auth_srv"
-	cfg     = &authCfg{}
+	log           = l.GetLogger()
+	appName       = "auth"
+	moduleName    = "auth_srv"
+	authorizedCfg = &cfg.AppCfg{}
+	// 根据需要改成可配置的app列表
+	configurationFileNames = []string{"auth"}
 )
 
-type authCfg struct {
-	common.AppCfg
+func Init() {
+	//loading configuration files
+	initCfg()
+	//init authorized application
+	initAuth()
+
+	//Redis init func
+	redis.Init()
+
+}
+
+func registryOptions(ops *registry.Options) {
+	etcdCfg := &cfg.Etcd{}
+	err := cfg.GetConfigurator().Path("etcd", etcdCfg)
+	if err != nil {
+		panic(err)
+	}
+	ops.Addrs = []string{fmt.Sprintf("%s:%d", etcdCfg.Host, etcdCfg.Port)}
+	log.Info("[registryOptions] 配置", zap.Any("Addrs:", ops.Addrs))
+}
+
+func initCfg() {
+	log.Info("[initCfg]...from main")
+
+	cfg.SetAppName(appName)
+	// 加载每个应用的配置文件
+	cfg.LoadConfigurationFile(configurationFileNames)
+}
+
+func initAuth() {
+	if err := cfg.GetConfigurator().Path("auth_srv", authorizedCfg); err != nil {
+		panic("can't get the value of the file " + appName + ".yml")
+	}
+
+	log.Info("[initCfg] 配置", zap.Any("cfg", authorizedCfg))
+
+	return
 }
 
 func main() {
 	// 初始化配置、数据库等信息
-	initCfg()
+	Init()
 
 	// 使用etcd注册
 	micReg := etcd.NewRegistry(registryOptions)
 
 	// 新建服务
 	service := micro.NewService(
-		micro.Name(cfg.Name),
+		micro.Name(authorizedCfg.Name),
 		micro.Name("mu.micro.book.srv.auth"),
 		micro.Registry(micReg),
-		micro.Version(cfg.Version),
-		micro.Address(cfg.Addr()),
+		micro.Version(authorizedCfg.Version),
+		micro.Address(authorizedCfg.Addr()),
 	)
 
 	// 服务初始化
@@ -62,35 +96,4 @@ func main() {
 		log.Error("[main] error")
 		panic(err)
 	}
-}
-
-func registryOptions(ops *registry.Options) {
-	etcdCfg := &common.Etcd{}
-	err := config.C().App("etcd", etcdCfg)
-	if err != nil {
-		panic(err)
-	}
-	ops.Addrs = []string{fmt.Sprintf("%s:%d", etcdCfg.Host, etcdCfg.Port)}
-}
-
-func initCfg() {
-	log.Info("[initCfg]...from main")
-	source := grpc.NewSource(
-		grpc.WithAddress("127.0.0.1:9600"),
-		grpc.WithPath("micro"),
-	)
-
-	basic.Init(
-		config.WithSource(source),
-		config.WithApp(appName),
-	)
-
-	err := config.C().App(appName, cfg)
-	if err != nil {
-		panic(err)
-	}
-
-	log.Info("[initCfg] 配置", zap.Any("cfg", cfg))
-
-	return
 }

@@ -1,8 +1,7 @@
 package redis
 
 import (
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
+	cfg "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/basic/config"
 	z "github.com/elitecodegroovy/goutil/logger"
 	r "github.com/go-redis/redis"
 	logger "github.com/micro/go-micro/util/log"
@@ -47,9 +46,9 @@ func (s *RedisSentinel) GetNodes() []string {
 }
 
 // init 初始化Redis
-func init() {
+func Init() {
 	logger.Logf("init redis...")
-	basic.Register(initRedis)
+	initRedis()
 }
 
 func initRedis() {
@@ -63,25 +62,25 @@ func initRedis() {
 
 	log.Info("[initRedis] 初始化Redis...")
 
-	c := config.C()
-	cfg := &redis{}
-	err := c.App("redis", cfg)
+	c := cfg.GetConfigurator()
+	redisConf := &redis{}
+	err := c.Path("redis", redisConf)
 	if err != nil {
 		log.Info("[initRedis] ", zap.Any("error: ", err))
 	}
 
-	if !cfg.Enabled {
+	if !redisConf.Enabled {
 		log.Info("[initRedis] 未启用redis")
 		return
 	}
 
 	// 加载哨兵模式
-	if cfg.Sentinel != nil && cfg.Sentinel.Enabled {
+	if redisConf.Sentinel != nil && redisConf.Sentinel.Enabled {
 		log.Info("[initRedis] 初始化Redis，哨兵模式...")
-		initSentinel(cfg)
+		initSentinel(redisConf)
 	} else { // 普通模式
 		log.Info("[initRedis] 初始化Redis，普通模式...")
-		initSingle(cfg)
+		initSingle(redisConf)
 	}
 
 	log.Info("[initRedis] 初始化Redis，检测连接...")

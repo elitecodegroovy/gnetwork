@@ -2,12 +2,12 @@ package access
 
 import (
 	"fmt"
+	redis2 "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/auth/model/redis"
 	"go.uber.org/zap"
 	"sync"
 
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/plugins/jwt"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/plugins/redis"
+	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/basic/config"
+	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/plugins/jwt"
 	l "github.com/elitecodegroovy/goutil/logger"
 	r "github.com/go-redis/redis"
 )
@@ -53,14 +53,12 @@ func Init() {
 		return
 	}
 
-	err := config.C().App("jwt", cfg)
+	err := config.GetConfigurator().Path("jwt", cfg)
 	if err != nil {
 		panic(err)
 	}
 
 	log.Info("[initCfg] 配置", zap.Any("cfg: ", cfg))
-
-	ca = redis.Redis()
-
+	ca = redis2.Redis()
 	s = &service{}
 }

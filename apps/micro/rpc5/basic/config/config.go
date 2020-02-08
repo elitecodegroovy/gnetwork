@@ -2,16 +2,19 @@ package config
 
 import (
 	"fmt"
-	"sync"
-
 	"github.com/micro/go-micro/config"
+	"github.com/micro/go-micro/config/encoder/yaml"
+	"github.com/micro/go-micro/config/source"
+	"github.com/micro/go-micro/config/source/file"
 	"github.com/micro/go-micro/util/log"
+	"go.uber.org/zap"
+	"os"
+	"sync"
 )
 
 var (
 	m      sync.RWMutex
 	inited bool
-
 	// 默认配置器
 	c = &configurator{}
 )
@@ -28,10 +31,18 @@ type configurator struct {
 	appName string
 }
 
+// Init 初始化配置
+func init() {
+	log.Logf("> config init ...")
+	opts := Options{}
+	c.init(opts)
+}
+
 func (c *configurator) App(name string, config interface{}) (err error) {
 
 	v := c.conf.Get(name)
 	if v != nil {
+		log.Info(">>>", zap.String("auth_srv", fmt.Sprintf("%s", string(v.Bytes()))))
 		err = v.Scan(config)
 	} else {
 		err = fmt.Errorf("[App] 配置不存在，err：%s", name)
@@ -52,7 +63,11 @@ func (c *configurator) Path(path string, config interface{}) (err error) {
 }
 
 // c 配置器
-func C() Configurator {
+func GetConfigurator() Configurator {
+	return c
+}
+
+func GetC() *configurator {
 	return c
 }
 
@@ -64,7 +79,6 @@ func (c *configurator) init(ops Options) (err error) {
 		log.Logf("[init] 配置已经初始化过")
 		return
 	}
-
 	c.conf = config.NewConfig()
 	c.appName = ops.AppName
 
@@ -73,41 +87,28 @@ func (c *configurator) init(ops Options) (err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	go func() {
-
-		log.Logf("[init] 侦听配置变动 ...")
-
-		// 开始侦听变动事件
-		watcher, err := c.conf.Watch()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		for {
-			v, err := watcher.Next()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			log.Logf("[init] 侦听配置变动: %v", string(v.Bytes()))
-		}
-	}()
-
 	// 标记已经初始化
 	inited = true
 	return
 }
 
-// Init 初始化配置
-func Init(opts ...Option) {
+func SetAppName(appName string) {
+	c.appName = appName
+}
 
-	ops := Options{}
-	for _, o := range opts {
-		o(&ops)
+func LoadConfigurationFile(configurationFileNames []string) {
+	encode := yaml.NewEncoder()
+	for _, app := range configurationFileNames {
+		if err := c.conf.Load(file.NewSource(
+			file.WithPath("/home/app/goapp/src/github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/auth/conf/"+app+".yml"),
+			source.WithEncoder(encode),
+		)); err != nil {
+			log.Fatal("[loadAndWatchConfigFile] 加载应用配置文件 异常，%s", zap.String("err:", err.Error()))
+			os.Exit(1)
+		}
 	}
+}
 
-	c = &configurator{}
-
-	c.init(ops)
+func GetCfgValueByName(appName string) []byte {
+	return c.conf.Get(appName).Bytes()
 }
