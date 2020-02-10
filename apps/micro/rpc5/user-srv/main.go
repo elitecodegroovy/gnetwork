@@ -5,18 +5,23 @@ import (
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/common"
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/basic/config"
-	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-web/handler"
-	_ "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-web/plugin"
+	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/user-srv/handler"
+	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/user-srv/model"
+	_ "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/user-srv/plugin"
+	s "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/user-srv/proto/user"
 	"github.com/micro/cli"
+	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/etcd"
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/go-micro/web"
+	"go.uber.org/zap"
+
+	l "github.com/elitecodegroovy/goutil/logger"
 	"github.com/micro/go-plugins/config/source/grpc"
 )
 
 var (
-	appName = "user_web"
+	log     = l.GetLogger()
+	appName = "user_srv"
 	cfg     = &userCfg{}
 )
 
@@ -25,40 +30,35 @@ type userCfg struct {
 }
 
 func main() {
-	// 初始化配置
+	// 初始化配置、数据库等信息
 	initCfg()
 
 	// 使用etcd注册
 	micReg := etcd.NewRegistry(registryOptions)
 
-	// 创建新服务
-	service := web.NewService(
-		web.Name(cfg.Name),
-		web.Version(cfg.Version),
-		web.Registry(micReg),
-		web.Address(cfg.Addr()),
+	// 新建服务
+	service := micro.NewService(
+		micro.Name("mu.micro.book.srv.user"),
+		micro.Registry(micReg),
+		micro.Version("v1.0.1"),
 	)
 
-	// 初始化服务
-	if err := service.Init(
-		web.Action(
-			func(c *cli.Context) {
-				// 初始化handler
-				handler.Init()
-			}),
-	); err != nil {
-		log.Fatal(err)
-	}
+	// 服务初始化
+	service.Init(
+		micro.Action(func(c *cli.Context) {
+			// 初始化模型层
+			model.Init()
+			// 初始化handler
+			handler.Init()
+		}),
+	)
 
-	// 注册登录接口
-	service.HandleFunc("/user/login", handler.Login)
-	// 注册退出接口
-	service.HandleFunc("/user/logout", handler.Logout)
-	service.HandleFunc("/user/test", handler.TestSession)
+	// 注册服务
+	s.RegisterUserHandler(service.Server(), new(handler.Service))
 
-	// 运行服务
+	// 启动服务
 	if err := service.Run(); err != nil {
-		log.Fatal(err)
+		log.Fatal("", zap.String("error: ", err.Error()))
 	}
 }
 
@@ -84,7 +84,7 @@ func initCfg() {
 		panic(err)
 	}
 
-	log.Logf("[initCfg] 配置，cfg：%v", cfg)
+	log.Info("[initCfg] 配置，cfg：%v", zap.Any("cfg:", cfg))
 
 	return
 }

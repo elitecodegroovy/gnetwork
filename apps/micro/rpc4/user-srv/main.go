@@ -39,8 +39,8 @@ func main() {
 	// 新建服务
 	service := micro.NewService(
 		micro.Name("mu.micro.book.srv.user"),
+		micro.Version("v1.0.0"),
 		micro.Registry(micReg),
-		micro.Version("latest"),
 	)
 
 	// 服务初始化

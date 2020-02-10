@@ -2,8 +2,8 @@ package handler
 
 import (
 	"context"
-	us "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-srv/model/user"
-	s "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-srv/proto/user"
+	us "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/user-srv/model/user"
+	s "github.com/elitecodegroovy/gnetwork/apps/micro/rpc5/user-srv/proto/user"
 	"github.com/micro/go-micro/util/log"
 )
 
@@ -26,8 +26,7 @@ func Init() {
 
 // QueryUserByName 通过参数中的名字返回用户
 func (e *Service) QueryUserByName(ctx context.Context, req *s.Request, rsp *s.Response) error {
-	//time.Sleep(3 * time.Second)
-	log.Logf("......v1.0.0")
+	log.Logf("......v1.0.1")
 	user, err := userService.QueryUserByName(req.UserName)
 	if err != nil {
 		rsp.Error = &s.Error{

@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"github.com/micro/go-micro/client/selector"
+	"github.com/micro/go-micro/registry"
 	"net/http"
 	"time"
 
@@ -24,6 +26,24 @@ type Error struct {
 	Detail string `json:"detail"`
 }
 
+// 过滤器，指定版本
+// 也可改成传入数字，低于或大于某版本号的不调用，可灵活配置
+func Filter(v string) client.CallOption {
+	filter := func(services []*registry.Service) []*registry.Service {
+		var filtered []*registry.Service
+
+		for _, service := range services {
+			if service.Version == v {
+				filtered = append(filtered, service)
+			}
+		}
+
+		return filtered
+	}
+
+	return client.WithSelectOption(selector.WithFilter(filter))
+}
+
 func Init() {
 	//cli := client.NewClient(
 	//	client.RequestTimeout(time.Second * 3),
@@ -41,7 +61,7 @@ func Init() {
 
 // Login 登录入口
 func Login(w http.ResponseWriter, r *http.Request) {
-
+	log.Logf("req: %+v ", r)
 	// 只接受POST请求
 	if r.Method != "POST" {
 		log.Logf("非法请求")
@@ -54,7 +74,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// 调用后台服务
 	rsp, err := serviceClient.QueryUserByName(context.TODO(), &us.Request{
 		UserName: r.Form.Get("userName"),
-	})
+	}, Filter("v1.0.0"))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
