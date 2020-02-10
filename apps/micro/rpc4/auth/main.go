@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/auth/handler"
@@ -29,24 +30,31 @@ type authCfg struct {
 	common.AppCfg
 }
 
-func main() {
-	// 初始化配置、数据库等信息
-	initCfg()
+var appService micro.Service
+
+var cancel context.CancelFunc
+var ctx context.Context
+
+func startBootstrap() {
+
+	// 获取上下文，并声明关闭函数cancel
+	ctx, cancel = context.WithCancel(context.Background())
 
 	// 使用etcd注册
 	micReg := etcd.NewRegistry(registryOptions)
 
 	// 新建服务
-	service := micro.NewService(
+	appService := micro.NewService(
 		micro.Name(cfg.Name),
 		micro.Name("mu.micro.book.srv.auth"),
 		micro.Registry(micReg),
 		micro.Version(cfg.Version),
 		micro.Address(cfg.Addr()),
+		micro.Context(ctx),
 	)
 
 	// 服务初始化
-	service.Init(
+	appService.Init(
 		micro.Action(func(c *cli.Context) {
 			// 初始化handler
 			model.Init()
@@ -55,10 +63,10 @@ func main() {
 		}),
 	)
 	// 注册服务
-	s.RegisterServiceHandler(service.Server(), new(handler.Service))
+	s.RegisterServiceHandler(appService.Server(), new(handler.Service))
 
 	// 启动服务
-	if err := service.Run(); err != nil {
+	if err := appService.Run(); err != nil {
 		log.Error("[main] error")
 		panic(err)
 	}
@@ -93,4 +101,27 @@ func initCfg() {
 	log.Info("[initCfg] 配置", zap.Any("cfg", cfg))
 
 	return
+}
+
+func listenChangedConf() {
+	go func() {
+		for {
+			switch {
+			case <-config.GetChangedChan():
+				cancel()
+				startBootstrap()
+			}
+		}
+
+	}()
+}
+
+func main() {
+	// 初始化配置、数据库等信息
+	initCfg()
+	// conf change listen
+	listenChangedConf()
+	//start service
+	startBootstrap()
+
 }

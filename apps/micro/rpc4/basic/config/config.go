@@ -24,8 +24,9 @@ type Configurator interface {
 
 // configurator 配置器
 type configurator struct {
-	conf    config.Config
-	appName string
+	conf        config.Config
+	appName     string
+	changedChan chan bool
 }
 
 func (c *configurator) App(name string, config interface{}) (err error) {
@@ -56,6 +57,10 @@ func C() Configurator {
 	return c
 }
 
+func GetChangedChan() chan bool {
+	return c.changedChan
+}
+
 func (c *configurator) init(ops Options) (err error) {
 	m.Lock()
 	defer m.Unlock()
@@ -67,6 +72,7 @@ func (c *configurator) init(ops Options) (err error) {
 
 	c.conf = config.NewConfig()
 	c.appName = ops.AppName
+	c.changedChan = make(chan bool)
 
 	// 加载配置
 	err = c.conf.Load(ops.Sources...)
@@ -91,6 +97,7 @@ func (c *configurator) init(ops Options) (err error) {
 			}
 
 			log.Logf("[init] 侦听配置变动: %v", string(v.Bytes()))
+			c.changedChan <- true
 		}
 	}()
 

@@ -25,6 +25,16 @@ type Error struct {
 }
 
 func Init() {
+	//cli := client.NewClient(
+	//	client.RequestTimeout(time.Second * 3),
+	//)
+	//
+	//// 定义服务，可以传入其它可选参数
+	//commonService := micro.NewService(
+	//	micro.Name("timeout.client"),
+	//	micro.Client(cli))
+	// service.Init()
+
 	serviceClient = us.NewUserService("mu.micro.book.srv.user", client.DefaultClient)
 	authClient = auth.NewService("mu.micro.book.srv.auth", client.DefaultClient)
 }
