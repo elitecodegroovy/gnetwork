@@ -18,10 +18,10 @@ micro api --address=0.0.0.0:8080
 运行示例程序，在代码中注册服务时，我们在endpoint参数中写入了元数据，声明接口为 /example和 /foo/bar
 
 ```
-go run meta.go
+go run meta.go  
 ```
 
-向 /example POST请求时，会被转到go.micro.api.example的Example.Call方法。
+向 /example POST请求时，会被转到go.micro.api.example的Example.Call方法。 
 
 ```
 curl -H 'Content-Type: application/json' -d '{"name": "john"}' "http://localhost:8080/example"
