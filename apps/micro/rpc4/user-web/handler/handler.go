@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/client/selector"
 	"github.com/micro/go-micro/registry"
 	"net/http"
@@ -18,6 +20,7 @@ import (
 var (
 	serviceClient us.UserService
 	authClient    auth.Service
+	topic         = "go.micro.web.topic.hi"
 )
 
 // Error 错误结构体
@@ -193,4 +196,38 @@ func TestSession(w http.ResponseWriter, r *http.Request) {
 	log.Logf(sess.Name())
 
 	w.Write([]byte("OK"))
+}
+
+//It doesn't work.
+func PushMsg(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+	_ = r.ParseForm()
+	// 返回结果
+	response := map[string]interface{}{
+		"ref":  time.Now().UnixNano(),
+		"data": "Hello! " + r.Form.Get("name"),
+	}
+
+	// 返回JSON结构
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	pub(r.Form.Get("name"))
+}
+
+func pub(name string) {
+	msg := &broker.Message{
+		Header: map[string]string{
+			"name": fmt.Sprintf("%s", name),
+		},
+		Body: []byte(fmt.Sprintf("%s: %s", name, time.Now().String())),
+	}
+	if err := broker.Publish(topic, msg); err != nil {
+		log.Logf("[pub] 发布消息失败： %s", err)
+	} else {
+		log.Logf("[pub] 发布消息：%s", string(msg.Body))
+	}
 }

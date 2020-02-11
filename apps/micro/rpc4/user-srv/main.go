@@ -11,6 +11,7 @@ import (
 	s "github.com/elitecodegroovy/gnetwork/apps/micro/rpc4/user-srv/proto/user"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-micro/registry/etcd"
 	"go.uber.org/zap"
@@ -23,6 +24,7 @@ var (
 	log     = l.GetLogger()
 	appName = "user_srv"
 	cfg     = &userCfg{}
+	topic   = "go.micro.web.topic.hi"
 )
 
 type userCfg struct {
@@ -36,11 +38,25 @@ func main() {
 	// 使用etcd注册
 	micReg := etcd.NewRegistry(registryOptions)
 
+	bk := broker.NewBroker(
+		broker.Addrs(fmt.Sprintf("%s:%d", "127.0.0.1", 11089)),
+	)
+
+	_, err := bk.Subscribe(topic, func(p broker.Event) error {
+		log.Info(fmt.Sprintf("[sub] Received Body: %s, Header: %s", string(p.Message().Body), p.Message().Header))
+		return nil
+	})
+	if err != nil {
+		log.Info("[ERR] err: %s", zap.String("err", err.Error()))
+	}
+
 	// 新建服务
 	service := micro.NewService(
 		micro.Name("mu.micro.book.srv.user"),
 		micro.Version("v1.0.0"),
 		micro.Registry(micReg),
+		micro.Broker(bk),
+		micro.WrapHandler(handler.LogWrapper1, handler.LogWrapper2),
 	)
 
 	// 服务初始化

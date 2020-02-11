@@ -55,6 +55,7 @@ func main() {
 	// 注册退出接口
 	service.HandleFunc("/user/logout", handler.Logout)
 	service.HandleFunc("/user/test", handler.TestSession)
+	service.HandleFunc("/user/push", handler.PushMsg)
 
 	// 运行服务
 	if err := service.Run(); err != nil {
